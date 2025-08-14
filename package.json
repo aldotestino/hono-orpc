@@ -1,0 +1,23 @@
+{
+  "name": "hono-orpc",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "lint": "ultracite lint",
+    "format": "ultracite format",
+    "api": "bun --cwd apps/api dev"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "devDependencies": {
+    "@biomejs/biome": "2.2.0",
+    "@types/bun": "latest",
+    "ultracite": "5.1.5"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}

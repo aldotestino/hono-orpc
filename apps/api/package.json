@@ -1,0 +1,19 @@
+{
+  "name": "@hono-orpc/api",
+  "module": "./src/index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "bun run --watch ./src/index.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "hono": "^4.9.1",
+    "@hono-orpc/example": "workspace:*"
+  }
+}
