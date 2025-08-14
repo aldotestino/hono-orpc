@@ -2,6 +2,7 @@ import { OpenAPIHandler } from '@orpc/openapi/fetch';
 import { OpenAPIReferencePlugin } from '@orpc/openapi/plugins';
 import { ZodToJsonSchemaConverter } from '@orpc/zod/zod4';
 import { Hono } from 'hono';
+import { logger } from 'hono/logger';
 import router from './router';
 
 const handler = new OpenAPIHandler(router, {
@@ -19,6 +20,7 @@ const handler = new OpenAPIHandler(router, {
 });
 
 const app = new Hono();
+app.use(logger());
 
 app.get('/api/version', (c) =>
   c.json({

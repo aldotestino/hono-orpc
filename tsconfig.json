@@ -19,9 +19,6 @@
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false,
     "strictNullChecks": true,
-    "baseUrl": ".",
-    "paths": {
-      "@hono-orpc/example": ["./packages/example/src"]
-    }
+    "baseUrl": "."
   }
 }

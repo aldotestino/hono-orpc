@@ -6,7 +6,8 @@
   "scripts": {
     "lint": "ultracite lint",
     "format": "ultracite format",
-    "api": "bun --cwd apps/api dev"
+    "api": "bun --cwd apps/api dev",
+    "cli": "bun --cwd apps/cli start"
   },
   "workspaces": [
     "apps/*",
