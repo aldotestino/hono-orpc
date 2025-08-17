@@ -1,5 +1,6 @@
 import type { Signin } from '@hono-orpc/schema';
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
+import ChatHeader from '@/components/chat-header';
 import ChatMessage from '@/components/chat-message';
 import { useAutoScroll } from '@/lib/hooks/use-autoscroll';
 import { orpc } from '@/lib/orpc-client';
@@ -21,16 +22,19 @@ function chat({ channelId, sender }: Signin) {
 
   return (
     <div
-      className="h-full space-y-2 overflow-y-auto p-4"
+      className="h-full flex-1 overflow-hidden overflow-y-auto"
       onScroll={handleScroll}
       ref={chatContainerRef}
     >
-      {initialMessages.map((message) => (
-        <ChatMessage key={message.id} message={message} sender={sender} />
-      ))}
-      {liveMessages?.map((message) => (
-        <ChatMessage key={message.id} message={message} sender={sender} />
-      ))}
+      <ChatHeader channelId={channelId} sender={sender} />
+      <div className="space-y-2 p-4">
+        {initialMessages.map((message) => (
+          <ChatMessage key={message.id} message={message} sender={sender} />
+        ))}
+        {liveMessages?.map((message) => (
+          <ChatMessage key={message.id} message={message} sender={sender} />
+        ))}
+      </div>
     </div>
   );
 }

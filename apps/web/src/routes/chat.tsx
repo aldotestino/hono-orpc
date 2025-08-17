@@ -2,7 +2,6 @@ import { SigninSchema } from '@hono-orpc/schema';
 import { createFileRoute } from '@tanstack/react-router';
 import { Loader } from 'lucide-react';
 import Chat from '@/components/chat';
-import ChatHeader from '@/components/chat-header';
 import ChatMessageInput from '@/components/chat-message-input';
 import { orpc } from '@/lib/orpc-client';
 
@@ -29,10 +28,7 @@ function ChatPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <ChatHeader channelId={channelId} sender={sender} />
-      <div className="flex-1 overflow-hidden">
-        <Chat channelId={channelId} sender={sender} />
-      </div>
+      <Chat channelId={channelId} sender={sender} />
       <ChatMessageInput channelId={channelId} sender={sender} />
     </div>
   );
