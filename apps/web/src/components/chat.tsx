@@ -1,6 +1,7 @@
 import type { Signin } from '@hono-orpc/schema';
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import ChatMessage from '@/components/chat-message';
+import { useAutoScroll } from '@/lib/hooks/use-autoscroll';
 import { orpc } from '@/lib/orpc-client';
 
 function chat({ channelId, sender }: Signin) {
@@ -15,8 +16,15 @@ function chat({ channelId, sender }: Signin) {
     })
   );
 
+  const totalMessages = initialMessages.length + (liveMessages?.length ?? 0);
+  const { chatContainerRef, handleScroll } = useAutoScroll(totalMessages);
+
   return (
-    <div className="space-y-2 p-4">
+    <div
+      className="h-full space-y-2 overflow-y-auto p-4"
+      onScroll={handleScroll}
+      ref={chatContainerRef}
+    >
       {initialMessages.map((message) => (
         <ChatMessage key={message.id} message={message} sender={sender} />
       ))}
