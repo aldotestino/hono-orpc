@@ -12,7 +12,7 @@ const avatarBgColor = (sender: string) => {
   return colors[hash % colors.length];
 };
 
-function chat({ channelId }: Signin) {
+function chat({ channelId, sender }: Signin) {
   const { data } = useSuspenseQuery(
     orpc.chat.messages.queryOptions({ input: { channelId } })
   );
@@ -37,7 +37,7 @@ function chat({ channelId }: Signin) {
           <div className="min-w-0 flex-1">
             <div className="mb-1 flex items-baseline gap-2">
               <span className="font-medium text-foreground text-sm">
-                {message.sender}
+                {message.sender === sender ? `You (${sender})` : message.sender}
               </span>
               <span className="text-muted-foreground text-xs">
                 {format(new Date(message.createdAt), 'MMM d, HH:mm')}
