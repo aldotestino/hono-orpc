@@ -7,6 +7,9 @@ import { createTanstackQueryUtils } from '@orpc/tanstack-query';
 
 const link = new OpenAPILink(router, {
   url: `${window.location.origin}/api/rpc`,
+  eventIteratorKeepAliveEnabled: true,
+  eventIteratorKeepAliveInterval: 5000,
+  eventIteratorKeepAliveComment: '',
 });
 
 const client: JsonifiedClient<ContractRouterClient<typeof router>> =
