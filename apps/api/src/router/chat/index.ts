@@ -1,6 +1,8 @@
 import { type Message, MessageSchema } from '@hono-orpc/schema';
-import { os } from '@orpc/server';
+import { EventPublisher, eventIterator, os } from '@orpc/server';
 import { z } from 'zod/v4';
+
+const publisher = new EventPublisher<Record<string, Message>>();
 
 const chatRouter = os.route({
   tags: ['chat'],
@@ -27,6 +29,7 @@ const sendMessage = chatRouter
     path: '/chat/messages',
   })
   .input(MessageSchema.omit({ id: true, createdAt: true }))
+  .output(MessageSchema)
   .handler(({ input }) => {
     const { channelId } = input;
 
@@ -44,10 +47,29 @@ const sendMessage = chatRouter
 
     messagesByChannel.set(message.channelId, [...oldMessages, message]);
 
+    publisher.publish(channelId, message);
+
     return message;
+  });
+
+const streamMessages = chatRouter
+  .route({
+    method: 'GET',
+    description: 'Stream messages by channel',
+    path: '/chat/messages/stream',
+  })
+  .input(MessageSchema.pick({ channelId: true }))
+  .output(eventIterator(MessageSchema))
+  .handler(async function* ({ input, signal }) {
+    for await (const payload of publisher.subscribe(input.channelId, {
+      signal,
+    })) {
+      yield payload;
+    }
   });
 
 export default {
   messages,
   sendMessage,
+  streamMessages,
 };
