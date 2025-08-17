@@ -87,9 +87,11 @@ const stats = chatRouter
           count: z.number().describe('The total number of messages'),
         })
         .describe('The messages stats'),
-      users: z.object({
-        count: z.number().describe('The number of users'),
-      }),
+      users: z
+        .object({
+          count: z.number().describe('The number of users'),
+        })
+        .describe('The users stats'),
     })
   )
   .handler(() => {
