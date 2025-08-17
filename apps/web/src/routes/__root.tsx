@@ -11,7 +11,9 @@ type MyRouterContext = {
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   component: () => (
     <>
-      <Outlet />
+      <div className="h-screen">
+        <Outlet />
+      </div>
       <TanstackDevtools
         config={{
           position: 'bottom-left',

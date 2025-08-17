@@ -33,6 +33,26 @@ const random = greetingsRouter
     return { message: greetRandom() };
   });
 
+// const stream = greetingsRouter
+//   .route({
+//     method: 'GET',
+//     description: 'Stream greetings',
+//     path: '/greetings/stream',
+//   })
+//   .output(
+//     eventIterator(
+//       z.object({ message: z.string().describe('The greeting message') })
+//     )
+//   )
+//   .handler(async function* ({ signal }) {
+//     const TIMEOUT_MS = 1000;
+
+//     while (!signal?.aborted) {
+//       yield { message: greetRandom() };
+//       await new Promise((resolve) => setTimeout(resolve, TIMEOUT_MS));
+//     }
+//   });
+
 export default {
   user,
   random,

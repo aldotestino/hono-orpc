@@ -1,0 +1,35 @@
+import { SigninSchema } from '@hono-orpc/schema';
+import { createFileRoute } from '@tanstack/react-router';
+import Chat from '@/components/chat';
+import ChatMessageInput from '@/components/chat-message-input';
+import { orpc } from '@/lib/orpc-client';
+
+export const Route = createFileRoute('/chat')({
+  component: ChatPage,
+  validateSearch: SigninSchema,
+  loaderDeps: ({ search: { channelId } }) => ({ channelId }),
+  loader: async ({ context, deps: { channelId } }) =>
+    context.queryClient.ensureQueryData(
+      orpc.chat.messages.queryOptions({ input: { channelId } })
+    ),
+});
+
+function ChatPage() {
+  const { channelId, sender } = Route.useSearch();
+
+  return (
+    <div className="flex h-full flex-col overflow-hidden">
+      <div className="flex-1 overflow-y-auto">
+        <div className="sticky top-0 z-10 space-y-1 border-b bg-background/20 p-4 backdrop-blur-md">
+          <h1 className="font-semibold text-xl">#{channelId}</h1>
+          <p className="text-muted-foreground text-sm">
+            You are sending messages as{' '}
+            <span className="font-semibold text-foreground">{sender}</span>
+          </p>
+        </div>
+        <Chat channelId={channelId} sender={sender} />
+      </div>
+      <ChatMessageInput channelId={channelId} sender={sender} />
+    </div>
+  );
+}

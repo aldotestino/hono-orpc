@@ -1,13 +1,96 @@
-import { useQuery } from '@tanstack/react-query';
-import { createFileRoute } from '@tanstack/react-router';
-import { orpc } from '@/lib/orpc-client';
+import { type Signin, SigninSchema } from '@hono-orpc/schema';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { useForm } from 'react-hook-form';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 
 export const Route = createFileRoute('/')({
   component: App,
 });
 
 function App() {
-  const { data } = useQuery(orpc.greetings.random.queryOptions());
+  const form = useForm({
+    resolver: zodResolver(SigninSchema),
+    defaultValues: {
+      channelId: '',
+    },
+  });
 
-  return <div>{data?.message}</div>;
+  const navigate = useNavigate();
+
+  const onSubmit = (data: Signin) => {
+    navigate({
+      to: '/chat',
+      search: data,
+    });
+  };
+
+  return (
+    <div className="flex h-full items-center justify-center">
+      <Card className="w-96">
+        <CardHeader>
+          <CardTitle>Hono oRPC Chat</CardTitle>
+          <CardDescription>
+            Enter in a channel to start chatting.
+          </CardDescription>
+        </CardHeader>
+        <Form {...form}>
+          <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
+            <CardContent>
+              <div className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="channelId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Channel ID</FormLabel>
+                      <FormControl>
+                        <Input placeholder="general" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="sender"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Sender</FormLabel>
+                      <FormControl>
+                        <Input placeholder="John Doe" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button className="w-full" type="submit">
+                Enter
+              </Button>
+            </CardFooter>
+          </form>
+        </Form>
+      </Card>
+    </div>
+  );
 }

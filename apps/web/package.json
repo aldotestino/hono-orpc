@@ -1,5 +1,5 @@
 {
-  "name": "web",
+  "name": "@hono-orpc/web",
   "private": true,
   "type": "module",
   "scripts": {
@@ -11,8 +11,12 @@
   },
   "dependencies": {
     "@hono-orpc/api": "workspace:*",
+    "@hookform/resolvers": "^5.2.1",
     "@orpc/openapi-client": "^1.8.1",
     "@orpc/tanstack-query": "^1.8.1",
+    "@radix-ui/react-avatar": "^1.1.10",
+    "@radix-ui/react-label": "^2.1.7",
+    "@radix-ui/react-slot": "^1.2.3",
     "@tailwindcss/vite": "^4.0.6",
     "@tanstack/react-devtools": "^0.2.2",
     "@tanstack/react-query": "^5.66.5",
@@ -22,12 +26,15 @@
     "@tanstack/router-plugin": "^1.121.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
     "lucide-react": "^0.476.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-hook-form": "^7.62.0",
     "tailwind-merge": "^3.0.2",
     "tailwindcss": "^4.0.6",
-    "tw-animate-css": "^1.3.6"
+    "tw-animate-css": "^1.3.6",
+    "zod": "^4.0.17"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.0",

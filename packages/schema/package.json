@@ -1,19 +1,18 @@
 {
-  "name": "@hono-orpc/cli",
+  "name": "@hono-orpc/schema",
   "module": "index.ts",
   "type": "module",
   "private": true,
-  "dependencies": {
-    "@hono-orpc/api": "workspace:*",
-    "@orpc/openapi-client": "^1.8.1"
-  },
-  "scripts": {
-    "start": "bun run src/index.ts"
+  "exports": {
+    ".": "./src/index.ts"
   },
   "devDependencies": {
     "@types/bun": "latest"
   },
   "peerDependencies": {
     "typescript": "^5"
+  },
+  "dependencies": {
+    "zod": "^4.0.17"
   }
 }
