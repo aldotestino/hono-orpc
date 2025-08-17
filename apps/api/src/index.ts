@@ -1,6 +1,7 @@
 import { OpenAPIHandler } from '@orpc/openapi/fetch';
 import { OpenAPIReferencePlugin } from '@orpc/openapi/plugins';
 import { ZodToJsonSchemaConverter } from '@orpc/zod/zod4';
+import { serveWebApp } from 'apps/api/src/middlewares/serve-web-app';
 import { Hono } from 'hono';
 import { logger } from 'hono/logger';
 import router from './router';
@@ -20,16 +21,23 @@ const handler = new OpenAPIHandler(router, {
 });
 
 const app = new Hono();
+
+app.use('*', serveWebApp);
+
 app.use(logger());
 
-app.get('/api/version', (c) =>
-  c.json({
-    name: 'Hono ORPC',
+app.get('/api/version', (c) => {
+  const domain = process.env.RAILWAY_PUBLIC_DOMAIN
+    ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
+    : 'http://localhost:3000';
+
+  return c.json({
+    name: 'Hono oRPC Chat',
     version: 'v0.0.1',
     github: 'https://github.com/aldotestino/hono-orpc',
-    docs: 'http://localhost:3000/api/rpc',
-  })
-);
+    docs: `${domain}/api/rpc`,
+  });
+});
 
 app.use('/api/rpc/*', async (c, next) => {
   const { matched, response } = await handler.handle(c.req.raw, {

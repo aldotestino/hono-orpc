@@ -8,7 +8,9 @@
     "format": "ultracite format",
     "api": "bun --cwd apps/api dev",
     "web": "bun --cwd apps/web dev",
-    "cli": "bun --cwd apps/cli start"
+    "cli": "bun --cwd apps/cli start",
+    "build": "bun run --cwd apps/web build",
+    "start": "bun run --cwd apps/api start"
   },
   "workspaces": [
     "apps/*",

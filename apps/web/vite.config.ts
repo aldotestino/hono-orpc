@@ -18,10 +18,14 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/api/rpc': {
+      '/api': {
         target: 'http://localhost:3000',
         changeOrigin: true,
       },
     },
+  },
+  build: {
+    outDir: '../api/public',
+    emptyOutDir: true,
   },
 });
