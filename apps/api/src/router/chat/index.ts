@@ -68,8 +68,51 @@ const streamMessages = chatRouter
     }
   });
 
+const stats = chatRouter
+  .route({
+    method: 'GET',
+    description: 'Get stats',
+    path: '/chat/stats',
+  })
+  .output(
+    z.object({
+      channels: z
+        .object({
+          count: z.number().describe('The number of channels'),
+          names: z.array(z.string()).describe('The names of the channels'),
+        })
+        .describe('The channels stats'),
+      messages: z
+        .object({
+          count: z.number().describe('The total number of messages'),
+        })
+        .describe('The messages stats'),
+      users: z.object({
+        count: z.number().describe('The number of users'),
+      }),
+    })
+  )
+  .handler(() => {
+    const msgs = Array.from(messagesByChannel.values()).flat();
+    const uniqueUsers = new Set(msgs.map((m) => m.sender));
+
+    return {
+      channels: {
+        count: messagesByChannel.size,
+        names: Array.from(messagesByChannel.keys()),
+      },
+      messages: {
+        count: msgs.length,
+      },
+      users: {
+        count: uniqueUsers.size,
+      },
+    };
+  });
+
 export default {
   messages,
   sendMessage,
   streamMessages,
+  stats,
 };
