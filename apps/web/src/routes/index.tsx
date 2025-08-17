@@ -46,10 +46,22 @@ function App() {
     <div className="flex h-full items-center justify-center">
       <Card className="w-96">
         <CardHeader>
-          <CardTitle>Hono oRPC Chat</CardTitle>
-          <CardDescription>
-            Enter in a channel to start chatting.
-          </CardDescription>
+          <div className="flex h-full items-center gap-2">
+            {/** biome-ignore lint/performance/noImgElement: no other component */}
+            <img
+              alt="Hono oRPC Chat"
+              className="h-10 w-10"
+              height={512}
+              src="/logo512.png"
+              width={512}
+            />
+            <div>
+              <CardTitle>Hono oRPC Chat</CardTitle>
+              <CardDescription>
+                Enter in a channel to start chatting.
+              </CardDescription>
+            </div>
+          </div>
         </CardHeader>
         <Form {...form}>
           <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
