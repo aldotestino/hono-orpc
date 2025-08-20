@@ -15,6 +15,7 @@ const handler = new OpenAPIHandler(router, {
           title: 'Hono ORPC',
           version: '0.0.1',
         },
+        servers: [{ url: '/api/rpc' }],
       },
     }),
   ],
