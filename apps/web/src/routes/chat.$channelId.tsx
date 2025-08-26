@@ -1,17 +1,16 @@
-import { SigninSchema } from '@hono-orpc/schema';
+import { messagesInputSchema } from '@hono-orpc/db/schema';
 import { createFileRoute } from '@tanstack/react-router';
 import { Loader } from 'lucide-react';
 import Chat from '@/components/chat';
 import ChatMessageInput from '@/components/chat-message-input';
 import { orpc } from '@/lib/orpc-client';
 
-export const Route = createFileRoute('/chat')({
+export const Route = createFileRoute('/chat/$channelId')({
   component: ChatPage,
-  validateSearch: SigninSchema,
-  loaderDeps: ({ search: { channelId } }) => ({ channelId }),
-  loader: async ({ context, deps: { channelId } }) =>
+  validateSearch: messagesInputSchema.pick({ sender: true }),
+  loader: async ({ context, params: { channelId } }) =>
     context.queryClient.ensureQueryData(
-      orpc.chat.messages.queryOptions({ input: { channelId } })
+      orpc.chat.messages.queryOptions({ input: { id: channelId } })
     ),
   pendingComponent: () => (
     <div className="flex h-full flex-col items-center justify-center gap-2">
@@ -24,7 +23,8 @@ export const Route = createFileRoute('/chat')({
 });
 
 function ChatPage() {
-  const { channelId, sender } = Route.useSearch();
+  const { channelId } = Route.useParams();
+  const { sender } = Route.useSearch();
 
   return (
     <div className="flex h-full flex-col">

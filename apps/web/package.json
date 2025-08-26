@@ -10,6 +10,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@hono-orpc/db": "workspace:*",
     "@hono-orpc/api": "workspace:*",
     "@hookform/resolvers": "^5.2.1",
     "@orpc/openapi-client": "^1.8.1",
