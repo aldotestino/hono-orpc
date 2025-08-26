@@ -68,6 +68,9 @@ function App() {
             search: { sender: data.owner },
           });
         },
+        onError: (error) => {
+          form.setError('channelName', { message: error.message });
+        },
       })
     );
 
@@ -133,7 +136,11 @@ function App() {
                         <FormItem>
                           <FormLabel>Channel UUID</FormLabel>
                           <FormControl>
-                            <Input placeholder="123e4567-..." {...field} />
+                            <Input
+                              placeholder="123e4567-..."
+                              {...field}
+                              value={field.value || ''}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -149,7 +156,11 @@ function App() {
                         <FormItem>
                           <FormLabel>Channel Name</FormLabel>
                           <FormControl>
-                            <Input placeholder="My Channel" {...field} />
+                            <Input
+                              placeholder="My Channel"
+                              {...field}
+                              value={field.value || ''}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
