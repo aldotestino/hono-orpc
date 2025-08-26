@@ -10,7 +10,11 @@
     "web": "bun --cwd apps/web dev",
     "cli": "bun --cwd apps/cli start",
     "build": "bun run --cwd apps/web build",
-    "start": "bun run --cwd apps/api start"
+    "start": "bun run --cwd apps/api start",
+    "db:generate": "bun run --cwd packages/db db:generate",
+    "db:migrate": "bun run --cwd packages/db db:migrate",
+    "db:push": "bun run --cwd packages/db db:push",
+    "db:studio": "bun run --cwd packages/db db:studio"
   },
   "workspaces": [
     "apps/*",
