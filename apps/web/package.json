@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@hono-orpc/api": "workspace:*",
+    "@hono-orpc/db": "workspace:*",
     "@hookform/resolvers": "^5.2.1",
     "@orpc/openapi-client": "^1.8.1",
     "@orpc/tanstack-query": "^1.8.1",
@@ -18,6 +19,7 @@
     "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-switch": "^1.2.6",
+    "@radix-ui/react-tabs": "^1.1.13",
     "@tailwindcss/vite": "^4.0.6",
     "@tanstack/react-devtools": "^0.2.2",
     "@tanstack/react-query": "^5.66.5",

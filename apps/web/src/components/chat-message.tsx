@@ -1,4 +1,4 @@
-import type { Message } from '@hono-orpc/schema';
+import type { Message } from '@hono-orpc/db/schema';
 import { format } from 'date-fns';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 

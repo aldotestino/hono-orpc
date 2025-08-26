@@ -1,8 +1,8 @@
 import {
+  type Channel,
   type MessageInput,
-  MessageInputSchema,
-  type Signin,
-} from '@hono-orpc/schema';
+  messagesInputSchema,
+} from '@hono-orpc/db/schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { Loader, Send } from 'lucide-react';
@@ -18,11 +18,17 @@ import {
 import { Input } from '@/components/ui/input';
 import { orpc } from '@/lib/orpc-client';
 
-function ChatMessageInput({ channelId, sender }: Signin) {
+function ChatMessageInput({
+  channel,
+  sender,
+}: {
+  channel: Channel;
+  sender: string;
+}) {
   const form = useForm({
-    resolver: zodResolver(MessageInputSchema),
+    resolver: zodResolver(messagesInputSchema),
     defaultValues: {
-      channelId,
+      channelUuid: channel.uuid,
       sender,
       content: '',
     },
@@ -52,7 +58,7 @@ function ChatMessageInput({ channelId, sender }: Signin) {
                 <FormItem className="w-full">
                   <FormControl>
                     <Input
-                      placeholder={`Send a message to #${channelId} as ${sender}`}
+                      placeholder={`Send a message to #${channel.name} as ${sender}`}
                       {...field}
                     />
                   </FormControl>

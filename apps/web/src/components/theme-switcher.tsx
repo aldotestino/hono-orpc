@@ -23,7 +23,7 @@ function ThemeSwitcher() {
         </span>
       </div>
       <Label className="sr-only" htmlFor="theme-switcher">
-        Labeled switch
+        Switch theme
       </Label>
     </div>
   );
