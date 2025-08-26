@@ -36,11 +36,7 @@ const messagesContract = chatContract
       message: 'Channel not found',
     },
   })
-  .input(
-    z.object({
-      id: z.coerce.number().int().positive().min(1),
-    })
-  )
+  .input(channelsSchema.pick({ uuid: true }))
   .output(
     z.object({
       channel: channelsSchema,
@@ -68,7 +64,7 @@ const streamMessagesContract = chatContract
     description: 'Stream messages by channel',
     path: '/chat/messages/stream',
   })
-  .input(channelsSchema.pick({ id: true }))
+  .input(channelsSchema.pick({ uuid: true }))
   .output(eventIterator(messagesSchema));
 
 export default {

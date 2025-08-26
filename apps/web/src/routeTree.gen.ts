@@ -10,43 +10,43 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ChatChannelIdRouteImport } from './routes/chat.$channelId'
+import { Route as ChatUuidRouteImport } from './routes/chat.$uuid'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ChatChannelIdRoute = ChatChannelIdRouteImport.update({
-  id: '/chat/$channelId',
-  path: '/chat/$channelId',
+const ChatUuidRoute = ChatUuidRouteImport.update({
+  id: '/chat/$uuid',
+  path: '/chat/$uuid',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/chat/$channelId': typeof ChatChannelIdRoute
+  '/chat/$uuid': typeof ChatUuidRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/chat/$channelId': typeof ChatChannelIdRoute
+  '/chat/$uuid': typeof ChatUuidRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/chat/$channelId': typeof ChatChannelIdRoute
+  '/chat/$uuid': typeof ChatUuidRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/chat/$channelId'
+  fullPaths: '/' | '/chat/$uuid'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/chat/$channelId'
-  id: '__root__' | '/' | '/chat/$channelId'
+  to: '/' | '/chat/$uuid'
+  id: '__root__' | '/' | '/chat/$uuid'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ChatChannelIdRoute: typeof ChatChannelIdRoute
+  ChatUuidRoute: typeof ChatUuidRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -58,11 +58,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/chat/$channelId': {
-      id: '/chat/$channelId'
-      path: '/chat/$channelId'
-      fullPath: '/chat/$channelId'
-      preLoaderRoute: typeof ChatChannelIdRouteImport
+    '/chat/$uuid': {
+      id: '/chat/$uuid'
+      path: '/chat/$uuid'
+      fullPath: '/chat/$uuid'
+      preLoaderRoute: typeof ChatUuidRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -70,7 +70,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ChatChannelIdRoute: ChatChannelIdRoute,
+  ChatUuidRoute: ChatUuidRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -10,27 +10,31 @@ const chatRouter = implement(chatContract);
 
 const createChannelRoute = chatRouter.createChannel.handler(
   async ({ input, errors }) => {
-    const [channel] = await db.insert(channels).values(input).returning();
+    try {
+      const [channel] = await db.insert(channels).values(input).returning();
 
-    if (!channel) {
-      throw errors.BAD_REQUEST;
+      if (!channel) {
+        throw errors.BAD_REQUEST();
+      }
+
+      return channel;
+    } catch {
+      throw errors.BAD_REQUEST();
     }
-
-    return channel;
   }
 );
 
 const messagesRoute = chatRouter.messages.handler(async ({ input, errors }) => {
   const channel = await db.query.channels.findFirst({
-    where: eq(channels.id, input.id),
+    where: eq(channels.uuid, input.uuid),
   });
 
   if (!channel) {
-    throw errors.NOT_FOUND;
+    throw errors.NOT_FOUND();
   }
 
   const rawMessages = await db.query.messages.findMany({
-    where: eq(messages.channelId, input.id),
+    where: eq(messages.channelUuid, input.uuid),
   });
 
   return {
@@ -44,10 +48,10 @@ const sendMessageRoute = chatRouter.sendMessage.handler(
     const [message] = await db.insert(messages).values(input).returning();
 
     if (!message) {
-      throw errors.BAD_REQUEST;
+      throw errors.BAD_REQUEST();
     }
 
-    publisher.publish(input.channelId.toString(), message);
+    publisher.publish(input.channelUuid, message);
 
     return message;
   }
@@ -57,7 +61,7 @@ const streamMessagesRoute = chatRouter.streamMessages.handler(async function* ({
   input,
   signal,
 }) {
-  for await (const payload of publisher.subscribe(input.id.toString(), {
+  for await (const payload of publisher.subscribe(input.uuid, {
     signal,
   })) {
     yield payload;

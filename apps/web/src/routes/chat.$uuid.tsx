@@ -1,16 +1,19 @@
 import { messagesInputSchema } from '@hono-orpc/db/schema';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { Loader } from 'lucide-react';
 import Chat from '@/components/chat';
 import ChatMessageInput from '@/components/chat-message-input';
 import { orpc } from '@/lib/orpc-client';
 
-export const Route = createFileRoute('/chat/$channelId')({
+export const Route = createFileRoute('/chat/$uuid')({
   component: ChatPage,
   validateSearch: messagesInputSchema.pick({ sender: true }),
-  loader: async ({ context, params: { channelId } }) =>
+  loader: async ({ context, params: { uuid } }) =>
     context.queryClient.ensureQueryData(
-      orpc.chat.messages.queryOptions({ input: { id: channelId } })
+      orpc.chat.messages.queryOptions({
+        input: { uuid },
+      })
     ),
   pendingComponent: () => (
     <div className="flex h-full flex-col items-center justify-center gap-2">
@@ -23,13 +26,21 @@ export const Route = createFileRoute('/chat/$channelId')({
 });
 
 function ChatPage() {
-  const { channelId } = Route.useParams();
+  const { uuid } = Route.useParams();
   const { sender } = Route.useSearch();
+
+  const { data } = useSuspenseQuery(
+    orpc.chat.messages.queryOptions({ input: { uuid } })
+  );
 
   return (
     <div className="flex h-full flex-col">
-      <Chat channelId={channelId} sender={sender} />
-      <ChatMessageInput channelId={channelId} sender={sender} />
+      <Chat
+        channel={data.channel}
+        initialMessages={data.messages}
+        sender={sender}
+      />
+      <ChatMessageInput channel={data.channel} sender={sender} />
     </div>
   );
 }

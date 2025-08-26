@@ -1,21 +1,19 @@
-import { integer, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { createSelectSchema } from 'drizzle-zod';
-import { z } from 'zod/v4';
+import type { z } from 'zod/v4';
 
 export const channels = pgTable('channels', {
-  id: integer().notNull().primaryKey().generatedAlwaysAsIdentity(),
+  uuid: uuid().notNull().primaryKey().defaultRandom(),
   name: text().notNull().unique(),
-  createdAt: timestamp().notNull().defaultNow(),
   owner: text().notNull(),
+  createdAt: timestamp({ mode: 'string' }).notNull().defaultNow(),
 });
 
-export const channelsSchema = createSelectSchema(channels, {
-  id: z.number().int().positive().min(1),
-});
+export const channelsSchema = createSelectSchema(channels);
 export type Channel = z.infer<typeof channelsSchema>;
 
 export const channelsInputSchema = channelsSchema.omit({
-  id: true,
+  uuid: true,
   createdAt: true,
 });
 export type ChannelInput = z.infer<typeof channelsInputSchema>;
