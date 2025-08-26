@@ -1,11 +1,10 @@
 {
   "name": "@hono-orpc/db",
-  "module": "index.ts",
   "type": "module",
   "private": true,
   "exports": {
     ".": "./src/index.ts",
-    "./schema": "./src/schema.ts"
+    "./schema": "./src/schema/index.ts"
   },
   "scripts": {
     "db:generate": "drizzle-kit generate",
@@ -22,6 +21,8 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.1",
-    "drizzle-orm": "^0.44.5"
+    "drizzle-orm": "^0.44.5",
+    "drizzle-zod": "^0.6.0",
+    "zod": "^4.1.3"
   }
 }
