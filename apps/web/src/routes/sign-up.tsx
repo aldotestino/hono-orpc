@@ -23,9 +23,9 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { authClient } from '@/lib/auth';
-import { type UserSignin, userSigninSchema } from '@/lib/schema/user';
+import { type UserSignup, userSignupSchema } from '@/lib/schema/user';
 
-export const Route = createFileRoute('/')({
+export const Route = createFileRoute('/sign-up')({
   component: RouteComponent,
 });
 
@@ -34,22 +34,24 @@ function RouteComponent() {
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm({
-    resolver: zodResolver(userSigninSchema),
+    resolver: zodResolver(userSignupSchema),
     defaultValues: {
+      name: '',
       email: '',
       password: '',
     },
   });
 
-  async function onSignin(data: UserSignin) {
+  async function onSignup(data: UserSignup) {
     setIsLoading(true);
-    const { error } = await authClient.signIn.email(data);
+    const { error } = await authClient.signUp.email(data);
     setIsLoading(false);
 
     if (error) {
       toast.error(error.message);
       return;
     }
+
     form.reset();
     navigate({ to: '/chat' });
   }
@@ -63,9 +65,23 @@ function RouteComponent() {
         </CardHeader>
 
         <Form {...form}>
-          <form className="space-y-6" onSubmit={form.handleSubmit(onSignin)}>
+          <form className="space-y-6" onSubmit={form.handleSubmit(onSignup)}>
             <CardContent>
               <div className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
                 <FormField
                   control={form.control}
                   name="email"
@@ -99,12 +115,12 @@ function RouteComponent() {
             <CardFooter className="flex flex-col gap-2">
               <Button className="w-full" disabled={isLoading} type="submit">
                 {isLoading && <Loader className="animate-spin" />}
-                Sign in
+                Sign up
               </Button>
               <p className="text-muted-foreground text-sm">
-                Don&apos;t have an account?{' '}
-                <Link className="text-primary hover:underline" to="/sign-up">
-                  Sign up
+                Already have an account?{' '}
+                <Link className="text-primary hover:underline" to="/">
+                  Sign in
                 </Link>
               </p>
             </CardFooter>
