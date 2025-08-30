@@ -13,7 +13,7 @@ const handler = new OpenAPIHandler(router, {
       schemaConverters: [new ZodToJsonSchemaConverter()],
       specGenerateOptions: {
         info: {
-          title: 'Hono ORPC',
+          title: 'Hono oRPC Chat',
           version: '0.0.1',
         },
         servers: [{ url: '/api/rpc' }],
@@ -28,25 +28,14 @@ app.use('*', serveWebApp);
 
 app.use(logger());
 
-app.get('/api/version', (c) => {
-  const domain = process.env.RAILWAY_PUBLIC_DOMAIN
-    ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
-    : 'http://localhost:3000';
-
-  return c.json({
-    name: 'Hono oRPC Chat',
-    version: 'v0.0.1',
-    github: 'https://github.com/aldotestino/hono-orpc',
-    docs: `${domain}/api/rpc`,
-  });
-});
-
 app.on(['POST', 'GET'], '/api/auth/**', (c) => auth.handler(c.req.raw));
 
 app.use('/api/rpc/*', async (c, next) => {
   const { matched, response } = await handler.handle(c.req.raw, {
     prefix: '/api/rpc',
-    context: {},
+    context: {
+      headers: c.req.raw.headers,
+    },
   });
 
   if (matched) {

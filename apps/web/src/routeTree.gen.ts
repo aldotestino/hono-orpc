@@ -13,7 +13,6 @@ import { Route as SignUpRouteImport } from './routes/sign-up'
 import { Route as ProtectedRouteRouteImport } from './routes/_protected/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProtectedChatIndexRouteImport } from './routes/_protected/chat/index'
-import { Route as OldChatUuidRouteImport } from './routes/old.chat.$uuid'
 import { Route as ProtectedChatUuidRouteImport } from './routes/_protected/chat/$uuid'
 
 const SignUpRoute = SignUpRouteImport.update({
@@ -35,11 +34,6 @@ const ProtectedChatIndexRoute = ProtectedChatIndexRouteImport.update({
   path: '/chat/',
   getParentRoute: () => ProtectedRouteRoute,
 } as any)
-const OldChatUuidRoute = OldChatUuidRouteImport.update({
-  id: '/old/chat/$uuid',
-  path: '/old/chat/$uuid',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ProtectedChatUuidRoute = ProtectedChatUuidRouteImport.update({
   id: '/chat/$uuid',
   path: '/chat/$uuid',
@@ -50,14 +44,12 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/sign-up': typeof SignUpRoute
   '/chat/$uuid': typeof ProtectedChatUuidRoute
-  '/old/chat/$uuid': typeof OldChatUuidRoute
   '/chat': typeof ProtectedChatIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/sign-up': typeof SignUpRoute
   '/chat/$uuid': typeof ProtectedChatUuidRoute
-  '/old/chat/$uuid': typeof OldChatUuidRoute
   '/chat': typeof ProtectedChatIndexRoute
 }
 export interface FileRoutesById {
@@ -66,21 +58,19 @@ export interface FileRoutesById {
   '/_protected': typeof ProtectedRouteRouteWithChildren
   '/sign-up': typeof SignUpRoute
   '/_protected/chat/$uuid': typeof ProtectedChatUuidRoute
-  '/old/chat/$uuid': typeof OldChatUuidRoute
   '/_protected/chat/': typeof ProtectedChatIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/sign-up' | '/chat/$uuid' | '/old/chat/$uuid' | '/chat'
+  fullPaths: '/' | '/sign-up' | '/chat/$uuid' | '/chat'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/sign-up' | '/chat/$uuid' | '/old/chat/$uuid' | '/chat'
+  to: '/' | '/sign-up' | '/chat/$uuid' | '/chat'
   id:
     | '__root__'
     | '/'
     | '/_protected'
     | '/sign-up'
     | '/_protected/chat/$uuid'
-    | '/old/chat/$uuid'
     | '/_protected/chat/'
   fileRoutesById: FileRoutesById
 }
@@ -88,7 +78,6 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ProtectedRouteRoute: typeof ProtectedRouteRouteWithChildren
   SignUpRoute: typeof SignUpRoute
-  OldChatUuidRoute: typeof OldChatUuidRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -121,13 +110,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtectedChatIndexRouteImport
       parentRoute: typeof ProtectedRouteRoute
     }
-    '/old/chat/$uuid': {
-      id: '/old/chat/$uuid'
-      path: '/old/chat/$uuid'
-      fullPath: '/old/chat/$uuid'
-      preLoaderRoute: typeof OldChatUuidRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_protected/chat/$uuid': {
       id: '/_protected/chat/$uuid'
       path: '/chat/$uuid'
@@ -156,7 +138,6 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ProtectedRouteRoute: ProtectedRouteRouteWithChildren,
   SignUpRoute: SignUpRoute,
-  OldChatUuidRoute: OldChatUuidRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

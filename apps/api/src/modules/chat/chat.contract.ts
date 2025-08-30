@@ -5,13 +5,12 @@ import {
   messageSchema,
 } from '@hono-orpc/db/schema';
 import { eventIterator, oc } from '@orpc/contract';
-import { z } from 'zod/v4';
 
 const chatContract = oc.route({
   tags: ['chat'],
 });
 
-const createChannelContract = chatContract
+const createChannel = chatContract
   .route({
     method: 'POST',
     description: 'Create a new channel',
@@ -25,26 +24,16 @@ const createChannelContract = chatContract
   .input(channelsInputSchema)
   .output(channelSchema);
 
-const messagesContract = chatContract
+const getChannel = chatContract
   .route({
     method: 'GET',
-    description: 'Get messages by channel',
-    path: '/chat/messages',
-  })
-  .errors({
-    NOT_FOUND: {
-      message: 'Channel not found',
-    },
+    description: 'Get a channel by id',
+    path: '/chat/channel/:id',
   })
   .input(channelSchema.pick({ uuid: true }))
-  .output(
-    z.object({
-      channel: channelSchema,
-      messages: z.array(messageSchema),
-    })
-  );
+  .output(channelSchema);
 
-const sendMessageContract = chatContract
+const sendMessage = chatContract
   .route({
     method: 'POST',
     description: 'Send a message to a channel',
@@ -58,7 +47,7 @@ const sendMessageContract = chatContract
   .input(messageInputSchema)
   .output(messageSchema);
 
-const streamMessagesContract = chatContract
+const streamMessages = chatContract
   .route({
     method: 'GET',
     description: 'Stream messages by channel',
@@ -68,8 +57,8 @@ const streamMessagesContract = chatContract
   .output(eventIterator(messageSchema));
 
 export default {
-  createChannel: createChannelContract,
-  messages: messagesContract,
-  sendMessage: sendMessageContract,
-  streamMessages: streamMessagesContract,
+  createChannel,
+  getChannel,
+  sendMessage,
+  streamMessages,
 };
