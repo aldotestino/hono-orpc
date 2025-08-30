@@ -101,7 +101,7 @@ const sendMessageToChannel = chatContract
   .input(
     z.object({
       uuid: z.uuid().describe('The uuid of the channel'),
-      content: z.string().describe('The content of the message'),
+      content: z.string().min(1).describe('The content of the message'),
     })
   )
   .output(messageSchema);
