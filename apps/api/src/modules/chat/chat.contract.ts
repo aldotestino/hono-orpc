@@ -1,8 +1,8 @@
 import {
+  channelSchema,
   channelsInputSchema,
-  channelsSchema,
-  messagesInputSchema,
-  messagesSchema,
+  messageInputSchema,
+  messageSchema,
 } from '@hono-orpc/db/schema';
 import { eventIterator, oc } from '@orpc/contract';
 import { z } from 'zod/v4';
@@ -23,7 +23,7 @@ const createChannelContract = chatContract
     },
   })
   .input(channelsInputSchema)
-  .output(channelsSchema);
+  .output(channelSchema);
 
 const messagesContract = chatContract
   .route({
@@ -36,11 +36,11 @@ const messagesContract = chatContract
       message: 'Channel not found',
     },
   })
-  .input(channelsSchema.pick({ uuid: true }))
+  .input(channelSchema.pick({ uuid: true }))
   .output(
     z.object({
-      channel: channelsSchema,
-      messages: z.array(messagesSchema),
+      channel: channelSchema,
+      messages: z.array(messageSchema),
     })
   );
 
@@ -55,8 +55,8 @@ const sendMessageContract = chatContract
       message: 'Failed to send message',
     },
   })
-  .input(messagesInputSchema)
-  .output(messagesSchema);
+  .input(messageInputSchema)
+  .output(messageSchema);
 
 const streamMessagesContract = chatContract
   .route({
@@ -64,8 +64,8 @@ const streamMessagesContract = chatContract
     description: 'Stream messages by channel',
     path: '/chat/messages/stream',
   })
-  .input(channelsSchema.pick({ uuid: true }))
-  .output(eventIterator(messagesSchema));
+  .input(channelSchema.pick({ uuid: true }))
+  .output(eventIterator(messageSchema));
 
 export default {
   createChannel: createChannelContract,

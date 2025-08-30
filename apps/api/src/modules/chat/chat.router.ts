@@ -1,5 +1,5 @@
 import db from '@hono-orpc/db';
-import { channels, type Message, messages } from '@hono-orpc/db/schema';
+import { channel, type Message, message } from '@hono-orpc/db/schema';
 import { EventPublisher, implement } from '@orpc/server';
 import { eq } from 'drizzle-orm';
 import chatContract from './chat.contract';
@@ -11,13 +11,13 @@ const chatRouter = implement(chatContract);
 const createChannelRoute = chatRouter.createChannel.handler(
   async ({ input, errors }) => {
     try {
-      const [channel] = await db.insert(channels).values(input).returning();
+      const [ch] = await db.insert(channel).values(input).returning();
 
-      if (!channel) {
+      if (!ch) {
         throw errors.BAD_REQUEST();
       }
 
-      return channel;
+      return ch;
     } catch {
       throw errors.BAD_REQUEST();
     }
@@ -25,35 +25,35 @@ const createChannelRoute = chatRouter.createChannel.handler(
 );
 
 const messagesRoute = chatRouter.messages.handler(async ({ input, errors }) => {
-  const channel = await db.query.channels.findFirst({
-    where: eq(channels.uuid, input.uuid),
+  const ch = await db.query.channel.findFirst({
+    where: eq(channel.uuid, input.uuid),
   });
 
-  if (!channel) {
+  if (!ch) {
     throw errors.NOT_FOUND();
   }
 
-  const rawMessages = await db.query.messages.findMany({
-    where: eq(messages.channelUuid, input.uuid),
+  const rawMessages = await db.query.message.findMany({
+    where: eq(message.channelUuid, input.uuid),
   });
 
   return {
-    channel,
+    channel: ch,
     messages: rawMessages,
   };
 });
 
 const sendMessageRoute = chatRouter.sendMessage.handler(
   async ({ input, errors }) => {
-    const [message] = await db.insert(messages).values(input).returning();
+    const [msg] = await db.insert(message).values(input).returning();
 
-    if (!message) {
+    if (!msg) {
       throw errors.BAD_REQUEST();
     }
 
-    publisher.publish(input.channelUuid, message);
+    publisher.publish(input.channelUuid, msg);
 
-    return message;
+    return msg;
   }
 );
 

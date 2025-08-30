@@ -1,6 +1,7 @@
 import { OpenAPIHandler } from '@orpc/openapi/fetch';
 import { OpenAPIReferencePlugin } from '@orpc/openapi/plugins';
 import { ZodToJsonSchemaConverter } from '@orpc/zod/zod4';
+import { auth } from 'apps/api/src/lib/auth';
 import { serveWebApp } from 'apps/api/src/middlewares/serve-web-app';
 import { Hono } from 'hono';
 import { logger } from 'hono/logger';
@@ -39,6 +40,8 @@ app.get('/api/version', (c) => {
     docs: `${domain}/api/rpc`,
   });
 });
+
+app.on(['POST', 'GET'], '/api/auth/**', (c) => auth.handler(c.req.raw));
 
 app.use('/api/rpc/*', async (c, next) => {
   const { matched, response } = await handler.handle(c.req.raw, {

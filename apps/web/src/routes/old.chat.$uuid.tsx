@@ -1,4 +1,4 @@
-import { messagesInputSchema } from '@hono-orpc/db/schema';
+import { messageInputSchema } from '@hono-orpc/db/schema';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { Loader } from 'lucide-react';
@@ -6,9 +6,9 @@ import Chat from '@/components/chat';
 import ChatMessageInput from '@/components/chat-message-input';
 import { orpc } from '@/lib/orpc-client';
 
-export const Route = createFileRoute('/chat/$uuid')({
+export const Route = createFileRoute('/old/chat/$uuid')({
   component: ChatPage,
-  validateSearch: messagesInputSchema.pick({ sender: true }),
+  validateSearch: messageInputSchema.pick({ sender: true }),
   loader: async ({ context, params: { uuid } }) =>
     context.queryClient.ensureQueryData(
       orpc.chat.messages.queryOptions({
