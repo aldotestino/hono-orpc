@@ -7,6 +7,9 @@ import TanStackQueryDevtools from '../integrations/tanstack-query/devtools';
 
 type MyRouterContext = {
   queryClient: QueryClient;
+  auth: {
+    isAuthenticated: boolean;
+  };
 };
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({

@@ -1,7 +1,7 @@
 import { createRouter, RouterProvider } from '@tanstack/react-router';
+import { Loader } from 'lucide-react';
 import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
-
 import {
   Provider as TanStackQueryProvider,
   getContext as tanstackQueryContext,
@@ -11,6 +11,7 @@ import {
 import { routeTree } from './routeTree.gen';
 
 import './styles.css';
+import { authClient } from '@/lib/auth.ts';
 import { ThemeProvider } from '@/providers/theme-provider.tsx';
 import reportWebVitals from './reportWebVitals.ts';
 
@@ -21,6 +22,9 @@ const router = createRouter({
   routeTree,
   context: {
     ...TanStackQueryProviderContext,
+    auth: {
+      isAuthenticated: false,
+    },
   },
   defaultPreload: 'intent',
   scrollRestoration: true,
@@ -36,6 +40,25 @@ declare module '@tanstack/react-router' {
   }
 }
 
+function RouterProviderWithAuth() {
+  const { data, isPending } = authClient.useSession();
+
+  if (isPending) {
+    return (
+      <div className="grid h-screen place-items-center">
+        <Loader className="size-10 animate-spin" />
+      </div>
+    );
+  }
+
+  return (
+    <RouterProvider
+      context={{ auth: { isAuthenticated: data !== null } }}
+      router={router}
+    />
+  );
+}
+
 // Render the app
 const rootElement = document.getElementById('app');
 if (rootElement && !rootElement.innerHTML) {
@@ -44,7 +67,7 @@ if (rootElement && !rootElement.innerHTML) {
     <StrictMode>
       <TanStackQueryProvider {...TanStackQueryProviderContext}>
         <ThemeProvider>
-          <RouterProvider router={router} />
+          <RouterProviderWithAuth />
         </ThemeProvider>
       </TanStackQueryProvider>
     </StrictMode>
