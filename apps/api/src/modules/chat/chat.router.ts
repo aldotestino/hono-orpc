@@ -2,7 +2,7 @@ import db from '@hono-orpc/db';
 import { channels, type Message, messages } from '@hono-orpc/db/schema';
 import { EventPublisher, implement } from '@orpc/server';
 import { eq } from 'drizzle-orm';
-import chatContract from '../contract/chat';
+import chatContract from './chat.contract';
 
 const publisher = new EventPublisher<Record<string, Message>>();
 
@@ -68,54 +68,9 @@ const streamMessagesRoute = chatRouter.streamMessages.handler(async function* ({
   }
 });
 
-// const statsRoute = chatRouter
-//   .route({
-//     method: 'GET',
-//     description: 'Get stats',
-//     path: '/chat/stats',
-//   })
-//   .output(
-//     z.object({
-//       channels: z
-//         .object({
-//           count: z.number().describe('The number of channels'),
-//           names: z.array(z.string()).describe('The names of the channels'),
-//         })
-//         .describe('The channels stats'),
-//       messages: z
-//         .object({
-//           count: z.number().describe('The total number of messages'),
-//         })
-//         .describe('The messages stats'),
-//       users: z
-//         .object({
-//           count: z.number().describe('The number of users'),
-//         })
-//         .describe('The users stats'),
-//     })
-//   )
-//   .handler(() => {
-//     const msgs = Array.from(messagesByChannel.values()).flat();
-//     const uniqueUsers = new Set(msgs.map((m) => m.sender));
-
-//     return {
-//       channels: {
-//         count: messagesByChannel.size,
-//         names: Array.from(messagesByChannel.keys()),
-//       },
-//       messages: {
-//         count: msgs.length,
-//       },
-//       users: {
-//         count: uniqueUsers.size,
-//       },
-//     };
-//   });
-
 export default {
   createChannel: createChannelRoute,
   messages: messagesRoute,
   sendMessage: sendMessageRoute,
   streamMessages: streamMessagesRoute,
-  // stats: statsRoute,
 };

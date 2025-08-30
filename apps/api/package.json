@@ -8,7 +8,7 @@
     "start": "bun ./src/index.ts"
   },
   "exports": {
-    "./contract": "./src/contract/index.ts"
+    "./contract": "./src/modules/contract.ts"
   },
   "devDependencies": {
     "@types/bun": "latest"
