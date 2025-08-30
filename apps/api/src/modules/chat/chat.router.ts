@@ -1,10 +1,9 @@
 import db from '@hono-orpc/db';
-import type { Message } from '@hono-orpc/db/schema';
+import type { Message, User } from '@hono-orpc/db/schema';
 import { EventPublisher, implement } from '@orpc/server';
 import { authMiddleware } from 'apps/api/src/middlewares/auth-middleware';
 import { userInChannelMiddleware } from 'apps/api/src/middlewares/user-in-channel-middleware';
-import type { User } from 'better-auth';
-import { DrizzleError, eq } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { channel, channelParticipant, message } from 'packages/db/src/tables';
 import chatContract from './chat.contract';
 
@@ -14,41 +13,44 @@ const publisher = new EventPublisher<
 
 const chatRouter = implement(chatContract).$context<{ headers: Headers }>();
 
+const getChannels = chatRouter.getChannels
+  .use(authMiddleware)
+  .handler(async ({ context }) => {
+    const userChannels = await db.query.channelParticipant.findMany({
+      where: eq(channelParticipant.userId, context.user.id),
+      with: {
+        channel: true,
+      },
+    });
+
+    return userChannels.map((uc) => uc.channel);
+  });
+
 const createChannel = chatRouter.createChannel
   .use(authMiddleware)
   .handler(async ({ context, input, errors }) => {
-    try {
-      const [ch] = await db
-        .insert(channel)
-        .values({
-          ...input,
-          ownerId: context.user.id,
-        })
-        .returning();
+    const [ch] = await db
+      .insert(channel)
+      .values({
+        ...input,
+        ownerId: context.user.id,
+      })
+      .returning();
 
-      if (!ch) {
-        throw errors.BAD_REQUEST();
-      }
-
-      // add owner to channel participants
-      await db.insert(channelParticipant).values({
-        channelUuid: ch.uuid,
-        userId: context.user.id,
-        role: 'owner',
+    if (!ch) {
+      throw errors.INTERNAL_SERVER_ERROR({
+        message: 'Failed to create channel',
       });
-
-      return ch;
-    } catch (err) {
-      if (err instanceof DrizzleError) {
-        // biome-ignore lint/suspicious/noConsole: check error code
-        console.log(err);
-        throw errors.BAD_REQUEST({
-          message: 'Channel name must be unique',
-        });
-      }
-
-      throw err;
     }
+
+    // add owner to channel participants
+    await db.insert(channelParticipant).values({
+      channelUuid: ch.uuid,
+      userId: context.user.id,
+      role: 'owner',
+    });
+
+    return ch;
   });
 
 const getChannel = chatRouter.getChannel
@@ -104,7 +106,7 @@ const sendMessageToChannel = chatRouter.sendMessageToChannel
 
     publisher.publish(input.uuid, {
       ...msg,
-      sender: context.user,
+      sender: context.user as User,
     });
 
     return msg;
@@ -122,6 +124,7 @@ const streamChannelMessages = chatRouter.streamChannelMessages
   });
 
 export default {
+  getChannels,
   createChannel,
   getChannel,
   getChannelMessages,

@@ -1,6 +1,6 @@
 import { createSelectSchema } from 'drizzle-zod';
 import type { z } from 'zod/v4';
-import { channel, channelParticipant, message } from '../tables';
+import { channel, channelParticipant, message, user } from '../tables';
 
 export const channelSchema = createSelectSchema(channel);
 export type Channel = z.infer<typeof channelSchema>;
@@ -10,3 +10,6 @@ export type ChannelParticipant = z.infer<typeof channelParticipantSchema>;
 
 export const messageSchema = createSelectSchema(message);
 export type Message = z.infer<typeof messageSchema>;
+
+export const userSchema = createSelectSchema(user);
+export type User = z.infer<typeof userSchema>;

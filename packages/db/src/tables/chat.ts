@@ -3,7 +3,7 @@ import { user } from './auth';
 
 export const channel = pgTable('channel', {
   uuid: uuid().notNull().primaryKey().defaultRandom(),
-  name: text().notNull().unique(),
+  name: text().notNull(),
   ownerId: text()
     .notNull()
     .references(() => user.id, {

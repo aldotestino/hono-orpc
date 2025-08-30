@@ -2,9 +2,9 @@ import {
   channelParticipantSchema,
   channelSchema,
   messageSchema,
+  userSchema,
 } from '@hono-orpc/db/schema';
 import { eventIterator, oc } from '@orpc/contract';
-import { userSchema } from 'better-auth/db';
 import { z } from 'zod/v4';
 
 const chatContract = oc
@@ -15,6 +15,17 @@ const chatContract = oc
     UNAUTHORIZED: {},
   });
 
+const getChannels = chatContract
+  .route({
+    method: 'GET',
+    description: "Get user's channels",
+    path: '/chat/channels',
+  })
+  .errors({
+    UNAUTHORIZED: {},
+  })
+  .output(z.array(channelSchema));
+
 const createChannel = chatContract
   .route({
     method: 'POST',
@@ -23,9 +34,7 @@ const createChannel = chatContract
     successStatus: 201,
   })
   .errors({
-    BAD_REQUEST: {
-      message: 'Channel already exists',
-    },
+    INTERNAL_SERVER_ERROR: {},
   })
   .input(z.object({ name: z.string().describe('The name of the channel') }))
   .output(channelSchema);
@@ -115,6 +124,7 @@ const streamChannelMessages = chatContract
   .output(eventIterator(messageSchema.extend({ sender: userSchema })));
 
 export default {
+  getChannels,
   createChannel,
   getChannel,
   getChannelMessages,
