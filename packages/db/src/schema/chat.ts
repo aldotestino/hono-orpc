@@ -17,3 +17,24 @@ export const channelsInputSchema = channelsSchema.omit({
   createdAt: true,
 });
 export type ChannelInput = z.infer<typeof channelsInputSchema>;
+
+export const messages = pgTable('messages', {
+  uuid: uuid().notNull().primaryKey().defaultRandom(),
+  sender: text().notNull(),
+  content: text().notNull(),
+  channelUuid: uuid()
+    .notNull()
+    .references(() => channels.uuid, {
+      onDelete: 'cascade',
+    }),
+  createdAt: timestamp({ mode: 'string' }).notNull().defaultNow(),
+});
+
+export const messagesSchema = createSelectSchema(messages);
+export type Message = z.infer<typeof messagesSchema>;
+
+export const messagesInputSchema = messagesSchema.omit({
+  uuid: true,
+  createdAt: true,
+});
+export type MessageInput = z.infer<typeof messagesInputSchema>;
