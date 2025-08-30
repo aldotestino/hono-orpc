@@ -23,7 +23,10 @@ function RouteComponent() {
       <div>
         <main className="mx-auto max-w-screen-md divide-y">
           {data.map((channel) => (
-            <div className="rounded p-4 hover:bg-accent" key={channel.uuid}>
+            <div
+              className="rounded p-4 text-lg hover:bg-accent"
+              key={channel.uuid}
+            >
               <Link params={{ uuid: channel.uuid }} to="/chat/$uuid">
                 #{channel.name}
               </Link>
