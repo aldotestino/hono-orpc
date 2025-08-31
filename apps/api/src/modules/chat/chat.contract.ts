@@ -37,7 +37,13 @@ const createChannel = chatContract
     INTERNAL_SERVER_ERROR: {},
   })
   .input(
-    z.object({ name: z.string().min(1).describe('The name of the channel') })
+    z.object({
+      name: z.string().min(1).describe('The name of the channel'),
+      members: z
+        .array(z.string())
+        .min(1)
+        .describe('The members of the channel'),
+    })
   )
   .output(channelSchema);
 

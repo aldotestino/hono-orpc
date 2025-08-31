@@ -43,12 +43,18 @@ const createChannel = chatRouter.createChannel
       });
     }
 
-    // add owner to channel participants
-    await db.insert(channelParticipant).values({
-      channelUuid: ch.uuid,
-      userId: context.user.id,
-      role: 'owner',
-    });
+    // add members and owner
+    await db.insert(channelParticipant).values([
+      {
+        channelUuid: ch.uuid,
+        userId: context.user.id,
+        role: 'owner',
+      },
+      ...input.members.map((userId) => ({
+        channelUuid: ch.uuid,
+        userId,
+      })),
+    ]);
 
     return ch;
   });

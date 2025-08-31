@@ -4,6 +4,7 @@ import { Loader, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod/v4';
+import AddUsers from '@/components/add-users';
 import { Button } from '@/components/ui/button';
 import {
   Drawer,
@@ -27,7 +28,7 @@ import { orpc } from '@/lib/orpc-client';
 
 const channelSchema = z.object({
   name: z.string().min(1),
-  participants: z.array(z.string()),
+  members: z.array(z.string()).min(1),
 });
 
 function NewChannel() {
@@ -37,7 +38,7 @@ function NewChannel() {
     resolver: zodResolver(channelSchema),
     defaultValues: {
       name: '',
-      participants: [],
+      members: [],
     },
   });
 
@@ -70,27 +71,45 @@ function NewChannel() {
             Create a new channel to chat with your friends.
           </DrawerDescription>
         </DrawerHeader>
-        <Form {...form}>
-          <form
-            className="p-4"
-            id="create-channel-form"
-            onSubmit={form.handleSubmit((value) => createChannel(value))}
-          >
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </form>
-        </Form>
+
+        <div className="h-full overflow-y-auto p-4">
+          <Form {...form}>
+            <form
+              className="w-full space-y-6"
+              id="create-channel-form"
+              onSubmit={form.handleSubmit((data) => createChannel(data))}
+            >
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="My Channel" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="members"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Members</FormLabel>
+                    <FormControl>
+                      <AddUsers onChange={field.onChange} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </form>
+          </Form>
+        </div>
+
         <DrawerFooter>
           <Button disabled={isPending} form="create-channel-form" type="submit">
             {isPending ? <Loader className="animate-spin" /> : 'Create'}
