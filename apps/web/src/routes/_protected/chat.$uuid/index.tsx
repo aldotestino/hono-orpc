@@ -67,7 +67,7 @@ function RouteComponent() {
             </div>
           </div>
           <Button asChild size="icon" variant="ghost">
-            <Link to="/chat/$uuid/details">
+            <Link params={{ uuid }} to="/chat/$uuid/details">
               <Settings />
             </Link>
           </Button>

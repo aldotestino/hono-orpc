@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import GoogleIcon from '@/components/google-icon';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -56,7 +57,7 @@ function RouteComponent() {
         <CardDescription>Sign in to your account</CardDescription>
       </CardHeader>
 
-      <CardContent>
+      <CardContent className="space-y-6">
         <Form {...form}>
           <form
             className="space-y-6"
@@ -94,12 +95,29 @@ function RouteComponent() {
             </div>
           </form>
         </Form>
+
+        <Button className="w-full" type="submit">
+          Sign in
+        </Button>
+
+        <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-border after:border-t">
+          <span className="relative z-10 bg-card px-2 text-muted-foreground">
+            Or continue with
+          </span>
+        </div>
+
+        <Button
+          className="w-full"
+          onClick={() => authClient.signIn.social({ provider: 'google' })}
+          type="button"
+          variant="outline"
+        >
+          <GoogleIcon />
+          Sign in with Google
+        </Button>
       </CardContent>
 
       <CardFooter className="flex flex-col gap-2">
-        <Button className="w-full" form="signin-form" type="submit">
-          Sign in
-        </Button>
         <p className="text-muted-foreground text-sm">
           Don&apos;t have an account?{' '}
           <Link className="text-primary hover:underline" to="/sign-up">
