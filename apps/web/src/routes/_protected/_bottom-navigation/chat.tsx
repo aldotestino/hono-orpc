@@ -14,14 +14,15 @@ function RouteComponent() {
   return (
     <main>
       {data.map((channel) => (
-        <div
-          className="cursor-pointer p-4 text-lg hover:bg-accent/20"
+        <Link
           key={channel.uuid}
+          params={{ uuid: channel.uuid }}
+          to="/chat/$uuid"
         >
-          <Link params={{ uuid: channel.uuid }} to="/chat/$uuid">
+          <div className="cursor-pointer p-4 text-lg hover:bg-accent/20">
             #{channel.name}
-          </Link>
-        </div>
+          </div>
+        </Link>
       ))}
       {data.length === 0 && (
         <div className="p-4 text-center text-muted-foreground">

@@ -22,9 +22,8 @@ const router = createRouter({
   routeTree,
   context: {
     ...TanStackQueryProviderContext,
-    auth: {
-      isAuthenticated: false,
-    },
+    // biome-ignore lint/style/noNonNullAssertion: will be defined in RouterProviderWithAuth
+    auth: undefined!,
   },
   defaultPreload: 'intent',
   scrollRestoration: true,
@@ -41,9 +40,9 @@ declare module '@tanstack/react-router' {
 }
 
 function RouterProviderWithAuth() {
-  const { data, isPending } = authClient.useSession();
+  const auth = authClient.useSession();
 
-  if (isPending) {
+  if (auth.isPending) {
     return (
       <div className="grid h-screen place-items-center">
         <Loader className="size-10 animate-spin" />
@@ -51,12 +50,7 @@ function RouterProviderWithAuth() {
     );
   }
 
-  return (
-    <RouterProvider
-      context={{ auth: { isAuthenticated: data !== null } }}
-      router={router}
-    />
-  );
+  return <RouterProvider context={{ auth }} router={router} />;
 }
 
 // Render the app

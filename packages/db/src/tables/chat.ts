@@ -9,7 +9,9 @@ export const channel = pgTable('channel', {
     .references(() => user.id, {
       onDelete: 'cascade',
     }),
-  createdAt: timestamp({ mode: 'string' }).notNull().defaultNow(),
+  createdAt: timestamp({ mode: 'string', withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
 
 export const channelRole = pgEnum('channel_role', ['owner', 'member']);
@@ -26,7 +28,9 @@ export const channelParticipant = pgTable('channel_participant', {
       onDelete: 'cascade',
     }),
   role: channelRole().notNull().default('member'),
-  createdAt: timestamp({ mode: 'string' }).notNull().defaultNow(),
+  createdAt: timestamp({ mode: 'string', withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
 
 export const message = pgTable('message', {
@@ -42,5 +46,7 @@ export const message = pgTable('message', {
     .references(() => channel.uuid, {
       onDelete: 'cascade',
     }),
-  createdAt: timestamp({ mode: 'string' }).notNull().defaultNow(),
+  createdAt: timestamp({ mode: 'string', withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });

@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { LogOut } from 'lucide-react';
 import { toast } from 'sonner';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -10,17 +10,17 @@ export const Route = createFileRoute('/_protected/_bottom-navigation/profile')({
 });
 
 function RouteComponent() {
+  const navigate = useNavigate();
+
   const { data } = authClient.useSession();
 
   async function handleSignOut() {
-    const result = await authClient.signOut();
-
-    if (result.error) {
-      toast.error(result.error.message);
+    const { error } = await authClient.signOut();
+    if (error) {
+      toast.error(error.message);
       return;
     }
-
-    location.href = '/';
+    navigate({ to: '/', reloadDocument: true });
   }
 
   return (

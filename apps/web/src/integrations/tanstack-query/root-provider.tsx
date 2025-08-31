@@ -1,10 +1,13 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
+const STALE_TIME = 300_000; // 5 minutes
+
 export function getContext() {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
         refetchOnWindowFocus: false,
+        staleTime: STALE_TIME,
       },
     },
   });
