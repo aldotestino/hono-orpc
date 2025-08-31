@@ -12,9 +12,11 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignUpRouteImport } from './routes/sign-up'
 import { Route as ProtectedRouteRouteImport } from './routes/_protected/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ProtectedChatIndexRouteImport } from './routes/_protected/chat/index'
-import { Route as ProtectedChatUuidIndexRouteImport } from './routes/_protected/chat/$uuid/index'
-import { Route as ProtectedChatUuidDetailsRouteImport } from './routes/_protected/chat/$uuid/details'
+import { Route as ProtectedBottomNavigationRouteRouteImport } from './routes/_protected/_bottom-navigation/route'
+import { Route as ProtectedBottomNavigationProfileRouteImport } from './routes/_protected/_bottom-navigation/profile'
+import { Route as ProtectedBottomNavigationChatRouteImport } from './routes/_protected/_bottom-navigation/chat'
+import { Route as ProtectedChatUuidIndexRouteImport } from './routes/_protected/chat.$uuid/index'
+import { Route as ProtectedChatUuidDetailsRouteImport } from './routes/_protected/chat.$uuid/details'
 
 const SignUpRoute = SignUpRouteImport.update({
   id: '/sign-up',
@@ -30,11 +32,23 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProtectedChatIndexRoute = ProtectedChatIndexRouteImport.update({
-  id: '/chat/',
-  path: '/chat/',
-  getParentRoute: () => ProtectedRouteRoute,
-} as any)
+const ProtectedBottomNavigationRouteRoute =
+  ProtectedBottomNavigationRouteRouteImport.update({
+    id: '/_bottom-navigation',
+    getParentRoute: () => ProtectedRouteRoute,
+  } as any)
+const ProtectedBottomNavigationProfileRoute =
+  ProtectedBottomNavigationProfileRouteImport.update({
+    id: '/profile',
+    path: '/profile',
+    getParentRoute: () => ProtectedBottomNavigationRouteRoute,
+  } as any)
+const ProtectedBottomNavigationChatRoute =
+  ProtectedBottomNavigationChatRouteImport.update({
+    id: '/chat',
+    path: '/chat',
+    getParentRoute: () => ProtectedBottomNavigationRouteRoute,
+  } as any)
 const ProtectedChatUuidIndexRoute = ProtectedChatUuidIndexRouteImport.update({
   id: '/chat/$uuid/',
   path: '/chat/$uuid/',
@@ -50,14 +64,16 @@ const ProtectedChatUuidDetailsRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/sign-up': typeof SignUpRoute
-  '/chat': typeof ProtectedChatIndexRoute
+  '/chat': typeof ProtectedBottomNavigationChatRoute
+  '/profile': typeof ProtectedBottomNavigationProfileRoute
   '/chat/$uuid/details': typeof ProtectedChatUuidDetailsRoute
   '/chat/$uuid': typeof ProtectedChatUuidIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/sign-up': typeof SignUpRoute
-  '/chat': typeof ProtectedChatIndexRoute
+  '/chat': typeof ProtectedBottomNavigationChatRoute
+  '/profile': typeof ProtectedBottomNavigationProfileRoute
   '/chat/$uuid/details': typeof ProtectedChatUuidDetailsRoute
   '/chat/$uuid': typeof ProtectedChatUuidIndexRoute
 }
@@ -66,21 +82,37 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_protected': typeof ProtectedRouteRouteWithChildren
   '/sign-up': typeof SignUpRoute
-  '/_protected/chat/': typeof ProtectedChatIndexRoute
+  '/_protected/_bottom-navigation': typeof ProtectedBottomNavigationRouteRouteWithChildren
+  '/_protected/_bottom-navigation/chat': typeof ProtectedBottomNavigationChatRoute
+  '/_protected/_bottom-navigation/profile': typeof ProtectedBottomNavigationProfileRoute
   '/_protected/chat/$uuid/details': typeof ProtectedChatUuidDetailsRoute
   '/_protected/chat/$uuid/': typeof ProtectedChatUuidIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/sign-up' | '/chat' | '/chat/$uuid/details' | '/chat/$uuid'
+  fullPaths:
+    | '/'
+    | '/sign-up'
+    | '/chat'
+    | '/profile'
+    | '/chat/$uuid/details'
+    | '/chat/$uuid'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/sign-up' | '/chat' | '/chat/$uuid/details' | '/chat/$uuid'
+  to:
+    | '/'
+    | '/sign-up'
+    | '/chat'
+    | '/profile'
+    | '/chat/$uuid/details'
+    | '/chat/$uuid'
   id:
     | '__root__'
     | '/'
     | '/_protected'
     | '/sign-up'
-    | '/_protected/chat/'
+    | '/_protected/_bottom-navigation'
+    | '/_protected/_bottom-navigation/chat'
+    | '/_protected/_bottom-navigation/profile'
     | '/_protected/chat/$uuid/details'
     | '/_protected/chat/$uuid/'
   fileRoutesById: FileRoutesById
@@ -114,12 +146,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_protected/chat/': {
-      id: '/_protected/chat/'
+    '/_protected/_bottom-navigation': {
+      id: '/_protected/_bottom-navigation'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof ProtectedBottomNavigationRouteRouteImport
+      parentRoute: typeof ProtectedRouteRoute
+    }
+    '/_protected/_bottom-navigation/profile': {
+      id: '/_protected/_bottom-navigation/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProtectedBottomNavigationProfileRouteImport
+      parentRoute: typeof ProtectedBottomNavigationRouteRoute
+    }
+    '/_protected/_bottom-navigation/chat': {
+      id: '/_protected/_bottom-navigation/chat'
       path: '/chat'
       fullPath: '/chat'
-      preLoaderRoute: typeof ProtectedChatIndexRouteImport
-      parentRoute: typeof ProtectedRouteRoute
+      preLoaderRoute: typeof ProtectedBottomNavigationChatRouteImport
+      parentRoute: typeof ProtectedBottomNavigationRouteRoute
     }
     '/_protected/chat/$uuid/': {
       id: '/_protected/chat/$uuid/'
@@ -138,14 +184,32 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface ProtectedBottomNavigationRouteRouteChildren {
+  ProtectedBottomNavigationChatRoute: typeof ProtectedBottomNavigationChatRoute
+  ProtectedBottomNavigationProfileRoute: typeof ProtectedBottomNavigationProfileRoute
+}
+
+const ProtectedBottomNavigationRouteRouteChildren: ProtectedBottomNavigationRouteRouteChildren =
+  {
+    ProtectedBottomNavigationChatRoute: ProtectedBottomNavigationChatRoute,
+    ProtectedBottomNavigationProfileRoute:
+      ProtectedBottomNavigationProfileRoute,
+  }
+
+const ProtectedBottomNavigationRouteRouteWithChildren =
+  ProtectedBottomNavigationRouteRoute._addFileChildren(
+    ProtectedBottomNavigationRouteRouteChildren,
+  )
+
 interface ProtectedRouteRouteChildren {
-  ProtectedChatIndexRoute: typeof ProtectedChatIndexRoute
+  ProtectedBottomNavigationRouteRoute: typeof ProtectedBottomNavigationRouteRouteWithChildren
   ProtectedChatUuidDetailsRoute: typeof ProtectedChatUuidDetailsRoute
   ProtectedChatUuidIndexRoute: typeof ProtectedChatUuidIndexRoute
 }
 
 const ProtectedRouteRouteChildren: ProtectedRouteRouteChildren = {
-  ProtectedChatIndexRoute: ProtectedChatIndexRoute,
+  ProtectedBottomNavigationRouteRoute:
+    ProtectedBottomNavigationRouteRouteWithChildren,
   ProtectedChatUuidDetailsRoute: ProtectedChatUuidDetailsRoute,
   ProtectedChatUuidIndexRoute: ProtectedChatUuidIndexRoute,
 }
