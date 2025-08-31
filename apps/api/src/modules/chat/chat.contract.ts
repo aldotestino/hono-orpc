@@ -36,7 +36,9 @@ const createChannel = chatContract
   .errors({
     INTERNAL_SERVER_ERROR: {},
   })
-  .input(z.object({ name: z.string().describe('The name of the channel') }))
+  .input(
+    z.object({ name: z.string().min(1).describe('The name of the channel') })
+  )
   .output(channelSchema);
 
 const getChannel = chatContract

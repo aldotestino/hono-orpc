@@ -5,6 +5,7 @@ import {
   useLocation,
 } from '@tanstack/react-router';
 import { MessageCircle, User } from 'lucide-react';
+import NewChannel from '@/components/new-channel';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -19,10 +20,11 @@ function RouteComponent() {
     <div className="grid h-screen grid-rows-[1fr_auto] overflow-hidden">
       <div className="overflow-y-auto">
         {/* Header */}
-        <header className="sticky top-0 z-10 flex h-16 items-center bg-background/20 px-4 backdrop-blur-md">
+        <header className="sticky top-0 z-10 flex h-16 items-center justify-between bg-background/20 px-4 backdrop-blur-md">
           <h1 className="font-semibold text-xl">
             {pathname === '/chat' ? 'Chat' : 'Profile'}
           </h1>
+          {pathname === '/chat' && <NewChannel />}
         </header>
         <Outlet />
       </div>
