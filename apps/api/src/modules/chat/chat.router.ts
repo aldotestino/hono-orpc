@@ -1,10 +1,10 @@
 import db from '@hono-orpc/db';
 import type { Message, User } from '@hono-orpc/db/schema';
+import { channel, channelParticipant, message } from '@hono-orpc/db/tables';
 import { EventPublisher, implement } from '@orpc/server';
-import { authMiddleware } from 'apps/api/src/middlewares/auth-middleware';
-import { userInChannelMiddleware } from 'apps/api/src/middlewares/user-in-channel-middleware';
 import { eq } from 'drizzle-orm';
-import { channel, channelParticipant, message } from 'packages/db/src/tables';
+import { authMiddleware } from '../../middlewares/auth-middleware';
+import { userInChannelMiddleware } from '../../middlewares/user-in-channel-middleware';
 import chatContract from './chat.contract';
 
 const publisher = new EventPublisher<

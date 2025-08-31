@@ -59,11 +59,7 @@ function RouteComponent() {
 
       <CardContent className="space-y-6">
         <Form {...form}>
-          <form
-            className="space-y-6"
-            id="signin-form"
-            onSubmit={form.handleSubmit(onSignin)}
-          >
+          <form className="space-y-6" onSubmit={form.handleSubmit(onSignin)}>
             <div className="space-y-4">
               <FormField
                 control={form.control}
@@ -92,13 +88,13 @@ function RouteComponent() {
                   </FormItem>
                 )}
               />
+
+              <Button className="w-full" type="submit">
+                Sign in
+              </Button>
             </div>
           </form>
         </Form>
-
-        <Button className="w-full" type="submit">
-          Sign in
-        </Button>
 
         <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-border after:border-t">
           <span className="relative z-10 bg-card px-2 text-muted-foreground">

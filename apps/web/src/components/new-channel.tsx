@@ -27,6 +27,7 @@ import { orpc } from '@/lib/orpc-client';
 
 const channelSchema = z.object({
   name: z.string().min(1),
+  participants: z.array(z.string()),
 });
 
 function NewChannel() {
@@ -36,6 +37,7 @@ function NewChannel() {
     resolver: zodResolver(channelSchema),
     defaultValues: {
       name: '',
+      participants: [],
     },
   });
 

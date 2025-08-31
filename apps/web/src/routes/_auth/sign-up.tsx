@@ -58,11 +58,7 @@ function RouteComponent() {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form
-            className="space-y-6"
-            id="signup-form"
-            onSubmit={form.handleSubmit(onSignup)}
-          >
+          <form className="space-y-6" onSubmit={form.handleSubmit(onSignup)}>
             <div className="space-y-4">
               <FormField
                 control={form.control}
@@ -105,14 +101,14 @@ function RouteComponent() {
                   </FormItem>
                 )}
               />
+              <Button className="w-full" type="submit">
+                Sign up
+              </Button>
             </div>
           </form>
         </Form>
       </CardContent>
       <CardFooter className="flex flex-col gap-2">
-        <Button className="w-full" form="signup-form" type="submit">
-          Sign up
-        </Button>
         <p className="text-muted-foreground text-sm">
           Already have an account?{' '}
           <Link className="text-primary hover:underline" to="/">
