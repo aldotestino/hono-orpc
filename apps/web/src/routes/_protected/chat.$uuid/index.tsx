@@ -1,6 +1,6 @@
 import { useQuery, useSuspenseQueries } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Settings } from 'lucide-react';
 import MessageBox from '@/components/message-box';
 import MessageInput from '@/components/message-input';
 import { Button } from '@/components/ui/button';
@@ -52,39 +52,37 @@ function RouteComponent() {
         onScroll={handleScroll}
         ref={chatContainerRef}
       >
-        <header className="sticky top-0 z-10 bg-background/20 backdrop-blur-md">
-          <div className="mx-auto flex h-15 max-w-screen-md items-center gap-2 px-4">
+        <header className="sticky top-0 z-10 flex h-16 items-center justify-between bg-background/20 px-4 backdrop-blur-md">
+          <div className="flex items-center gap-2">
             <Button asChild size="icon" variant="ghost">
               <Link to="/chat">
                 <ChevronLeft />
               </Link>
             </Button>
-            <div className="flex-1 cursor-pointer">
-              <Link params={{ uuid }} to="/chat/$uuid/details">
-                <h1 className="font-semibold text-xl">#{channel.name}</h1>
-                <p className="text-muted-foreground text-sm">
-                  {channel.participants?.map((p) => p.user?.name).join(', ')}
-                </p>
-              </Link>
+            <div>
+              <h1 className="font-semibold text-lg">#{channel.name}</h1>
+              <p className="text-muted-foreground text-sm">
+                {channel.participants?.map((p) => p.user?.name).join(', ')}
+              </p>
             </div>
-            <div className="size-10 rounded-full bg-red-200" />
           </div>
+          <Button asChild size="icon" variant="ghost">
+            <Link to="/chat/$uuid/details">
+              <Settings />
+            </Link>
+          </Button>
         </header>
-        <div>
-          <main className="mx-auto max-w-screen-md space-y-2 p-4">
-            {messages.map((message) => (
-              <MessageBox key={message.uuid} message={message} />
-            ))}
-            {liveMessages?.map((message) => (
-              <MessageBox key={message.uuid} message={message} />
-            ))}
-          </main>
+        <div className="space-y-2 p-4">
+          {messages.map((message) => (
+            <MessageBox key={message.uuid} message={message} />
+          ))}
+          {liveMessages?.map((message) => (
+            <MessageBox key={message.uuid} message={message} />
+          ))}
         </div>
       </div>
-      <div>
-        <div className="mx-auto flex max-w-screen-md p-4">
-          <MessageInput channelUuid={uuid} />
-        </div>
+      <div className="p-4">
+        <MessageInput channelUuid={uuid} />
       </div>
     </div>
   );

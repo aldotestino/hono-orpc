@@ -1,5 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { LogOut } from 'lucide-react';
+import { toast } from 'sonner';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import { authClient } from '@/lib/auth';
 
 export const Route = createFileRoute('/_protected/_bottom-navigation/profile')({
@@ -9,8 +12,19 @@ export const Route = createFileRoute('/_protected/_bottom-navigation/profile')({
 function RouteComponent() {
   const { data } = authClient.useSession();
 
+  async function handleSignOut() {
+    const result = await authClient.signOut();
+
+    if (result.error) {
+      toast.error(result.error.message);
+      return;
+    }
+
+    location.href = '/';
+  }
+
   return (
-    <main className="space-y-4 px-4">
+    <main className="space-y-8 p-4">
       <div className="flex flex-col items-center justify-center gap-2">
         <Avatar className="size-24">
           <AvatarImage
@@ -26,6 +40,10 @@ function RouteComponent() {
           <p className="text-muted-foreground">{data?.user.email}</p>
         </div>
       </div>
+      <Button className="w-full" onClick={handleSignOut}>
+        <LogOut />
+        Sign out
+      </Button>
     </main>
   );
 }

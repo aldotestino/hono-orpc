@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
+import { createFileRoute, Link, redirect } from '@tanstack/react-router';
 import { Loader } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -26,11 +26,15 @@ import { authClient } from '@/lib/auth';
 import { type UserSignin, userSigninSchema } from '@/lib/schema/user';
 
 export const Route = createFileRoute('/')({
+  beforeLoad: ({ context: { auth } }) => {
+    if (auth.isAuthenticated) {
+      throw redirect({ to: '/chat' });
+    }
+  },
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm({
@@ -50,8 +54,8 @@ function RouteComponent() {
       toast.error(error.message);
       return;
     }
-    form.reset();
-    navigate({ to: '/chat' });
+
+    location.href = '/chat';
   }
 
   return (
