@@ -52,19 +52,17 @@ function RouteComponent() {
         onScroll={handleScroll}
         ref={chatContainerRef}
       >
-        <header className="sticky top-0 z-10 flex h-16 items-center justify-between bg-background/20 px-4 backdrop-blur-md">
-          <div className="flex items-center gap-2">
-            <Button asChild size="icon" variant="ghost">
-              <Link to="/chat">
-                <ChevronLeft />
-              </Link>
-            </Button>
-            <div>
-              <h1 className="font-semibold text-lg">#{channel.name}</h1>
-              <p className="text-muted-foreground text-sm">
-                {channel.participants?.map((p) => p.user?.name).join(', ')}
-              </p>
-            </div>
+        <header className="sticky top-0 z-10 grid h-16 grid-cols-[auto_1fr_auto] items-center gap-2 bg-background/20 px-4 backdrop-blur-md">
+          <Button asChild size="icon" variant="ghost">
+            <Link to="/chat">
+              <ChevronLeft />
+            </Link>
+          </Button>
+          <div className="min-w-0">
+            <h1 className="font-semibold text-lg">#{channel.name}</h1>
+            <p className="truncate text-muted-foreground text-sm">
+              {channel.participants?.map((p) => p.user?.name).join(', ')}
+            </p>
           </div>
           <Button asChild size="icon" variant="ghost">
             <Link params={{ uuid }} to="/chat/$uuid/details">

@@ -5,12 +5,7 @@ function MessageBox({
   message,
 }: {
   message: Message & {
-    sender:
-      | (Omit<User, 'createdAt' | 'updatedAt'> & {
-          createdAt: string;
-          updatedAt: string;
-        })
-      | null;
+    sender: User | null;
   };
 }) {
   return (
