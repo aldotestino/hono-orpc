@@ -1,11 +1,16 @@
-import { useQuery, useSuspenseQueries } from '@tanstack/react-query';
+import {
+  experimental_streamedQuery,
+  useQuery,
+  useSuspenseQueries,
+} from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { ChevronLeft, Settings } from 'lucide-react';
+import LiveMessagesStatusIndicator from '@/components/live-messages-status-indicator';
 import MessageBox from '@/components/message-box';
 import MessageInput from '@/components/message-input';
 import { Button } from '@/components/ui/button';
 import { useAutoScroll } from '@/lib/hooks/use-autoscroll';
-import { orpc } from '@/lib/orpc-client';
+import { client, orpc } from '@/lib/orpc-client';
 
 export const Route = createFileRoute('/_protected/chat/$uuid/')({
   loader: async ({ context: { queryClient }, params }) => {
@@ -35,11 +40,31 @@ function RouteComponent() {
     ],
   });
 
-  const { data: liveMessages } = useQuery(
-    orpc.chat.streamChannelMessages.experimental_streamedOptions({
+  const {
+    data: liveMessages,
+    isError: isLiveMessagesError,
+    fetchStatus: liveMessagesFetchStatus,
+  } = useQuery({
+    queryKey: orpc.chat.streamChannelMessages.queryKey({
       input: { uuid },
-    })
-  );
+    }),
+    // workaround for https://github.com/TanStack/query/releases/tag/v5.86.0 (queryFn -> streamFn)
+    // when fixes, use the commented out code below
+    queryFn: experimental_streamedQuery({
+      streamFn: ({ signal }) =>
+        client.chat.streamChannelMessages({ uuid }, { signal }),
+    }),
+  });
+
+  // const {
+  //   data: liveMessages,
+  //   isError: isLiveMessagesError,
+  //   fetchStatus: liveMessagesFetchStatus,
+  // } = useQuery(
+  //   orpc.chat.streamChannelMessages.experimental_streamedOptions({
+  //     input: { uuid },
+  //   })
+  // );
 
   const { chatContainerRef, handleScroll } = useAutoScroll(
     messages.length + (liveMessages?.length ?? 0)
@@ -64,11 +89,17 @@ function RouteComponent() {
               {channel.participants?.map((p) => p.user?.name).join(', ')}
             </p>
           </div>
-          <Button asChild size="icon" variant="ghost">
-            <Link params={{ uuid }} to="/chat/$uuid/details">
-              <Settings />
-            </Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <LiveMessagesStatusIndicator
+              fetchStatus={liveMessagesFetchStatus}
+              isError={isLiveMessagesError}
+            />
+            <Button asChild size="icon" variant="ghost">
+              <Link params={{ uuid }} to="/chat/$uuid/details">
+                <Settings />
+              </Link>
+            </Button>
+          </div>
         </header>
         <div className="space-y-2 p-4">
           {messages.map((message) => (

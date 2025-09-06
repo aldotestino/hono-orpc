@@ -1,4 +1,4 @@
-import { TanstackDevtools } from '@tanstack/react-devtools';
+import { TanStackDevtools } from '@tanstack/react-devtools';
 import type { QueryClient } from '@tanstack/react-query';
 import { createRootRouteWithContext, Outlet } from '@tanstack/react-router';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
@@ -19,7 +19,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       </div>
       <Toaster />
       {import.meta.env.DEV && (
-        <TanstackDevtools
+        <TanStackDevtools
           config={{
             position: 'bottom-left',
           }}

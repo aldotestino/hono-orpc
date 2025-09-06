@@ -1,5 +1,9 @@
 import type { ChannelParticipant, User } from '@hono-orpc/db/schema';
-import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from '@tanstack/react-query';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { ChevronLeft, LogOut, Trash2 } from 'lucide-react';
 import AddMembersToChannel from '@/components/add-members-to-channel';
@@ -30,9 +34,30 @@ function RouteComponent() {
 
   const navigate = useNavigate();
 
+  const queryClient = useQueryClient();
+
+  function cleanupQueries() {
+    return Promise.all([
+      queryClient.removeQueries({
+        queryKey: orpc.chat.getChannel.queryKey({
+          input: { uuid },
+        }),
+      }),
+      queryClient.removeQueries({
+        queryKey: orpc.chat.getChannelMessages.queryKey({
+          input: { uuid },
+        }),
+      }),
+      queryClient.invalidateQueries({
+        queryKey: orpc.chat.getChannels.queryKey(),
+      }),
+    ]);
+  }
+
   const { mutateAsync: leavChannel } = useMutation(
     orpc.chat.leaveChannel.mutationOptions({
-      onSuccess: () => {
+      onSuccess: async () => {
+        await cleanupQueries();
         navigate({ to: '/chat' });
       },
     })
@@ -40,7 +65,8 @@ function RouteComponent() {
 
   const { mutateAsync: deleteChannel } = useMutation(
     orpc.chat.deleteChannel.mutationOptions({
-      onSuccess: () => {
+      onSuccess: async () => {
+        await cleanupQueries();
         navigate({ to: '/chat' });
       },
     })

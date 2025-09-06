@@ -75,6 +75,7 @@ const deleteChannel = chatContract
     method: 'DELETE',
     description: 'Delete a channel',
     path: '/chat/channel/{uuid}',
+    successStatus: 204,
   })
   .errors({
     FORBIDDEN: {
@@ -91,6 +92,7 @@ const leaveChannel = chatContract
     method: 'POST',
     description: 'Leave a channel',
     path: '/chat/channel/{uuid}/leave',
+    successStatus: 204,
   })
   .errors({
     FORBIDDEN: {
@@ -104,6 +106,7 @@ const removeMemberFromChannel = chatContract
     method: 'POST',
     description: 'Remove a user from a channel',
     path: '/chat/channel/{uuid}/remove-member',
+    successStatus: 204,
   })
   .errors({
     FORBIDDEN: {
@@ -122,6 +125,7 @@ const addMembersToChannel = chatContract
     method: 'POST',
     description: 'Add members to a channel',
     path: '/chat/channel/{uuid}/add-members',
+    successStatus: 204,
   })
   .errors({
     FORBIDDEN: {
@@ -194,7 +198,9 @@ const streamChannelMessages = chatContract
     },
   })
   .input(z.object({ uuid: z.uuid().describe('The uuid of the channel') }))
-  .output(eventIterator(messageSchema.extend({ sender: userSchema })));
+  .output(
+    eventIterator(messageSchema.extend({ sender: userSchema.nullable() }))
+  );
 
 export default {
   getChannels,
