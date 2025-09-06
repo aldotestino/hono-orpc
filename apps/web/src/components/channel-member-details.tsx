@@ -1,6 +1,8 @@
 import type { ChannelParticipant, User } from '@hono-orpc/db/schema';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { ChevronRight, Trash2 } from 'lucide-react';
+import ConfirmAction from '@/components/confirm-action';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,6 +17,7 @@ import {
 import UserAvatar from '@/components/user-avatar';
 import UserListItem from '@/components/user-list-item';
 import { authClient } from '@/lib/auth';
+import { orpc } from '@/lib/orpc-client';
 
 function ChannelMemberDetails({
   channelOwnerId,
@@ -26,6 +29,20 @@ function ChannelMemberDetails({
   isOwner: boolean;
 }) {
   const { data } = authClient.useSession();
+
+  const queryClient = useQueryClient();
+
+  const { mutateAsync: removeMemberFromChannel } = useMutation(
+    orpc.chat.removeMemberFromChannel.mutationOptions({
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: orpc.chat.getChannel.queryKey({
+            input: { uuid: member.channelUuid },
+          }),
+        });
+      },
+    })
+  );
 
   return (
     <div className="flex items-center justify-between">
@@ -65,10 +82,21 @@ function ChannelMemberDetails({
 
               {isOwner && (
                 <DrawerFooter>
-                  <Button variant="destructive">
-                    <Trash2 />
-                    Remove From Channel
-                  </Button>
+                  <ConfirmAction
+                    action={() =>
+                      removeMemberFromChannel({
+                        uuid: member.channelUuid,
+                        memberId: member.userId,
+                      })
+                    }
+                    description="Are you sure you want to remove this member from the channel?"
+                    title={`Remove "${member.user?.name}" From Channel`}
+                  >
+                    <Button variant="destructive">
+                      <Trash2 />
+                      Remove From Channel
+                    </Button>
+                  </ConfirmAction>
                 </DrawerFooter>
               )}
             </DrawerContent>
