@@ -70,6 +70,71 @@ const getChannel = chatContract
     })
   );
 
+const deleteChannel = chatContract
+  .route({
+    method: 'DELETE',
+    description: 'Delete a channel',
+    path: '/chat/channel/{uuid}',
+  })
+  .errors({
+    FORBIDDEN: {
+      message: 'You are not the owner of this channel',
+    },
+    NOT_FOUND: {
+      message: 'Channel not found',
+    },
+  })
+  .input(z.object({ uuid: z.uuid().describe('The uuid of the channel') }));
+
+const leaveChannel = chatContract
+  .route({
+    method: 'POST',
+    description: 'Leave a channel',
+    path: '/chat/channel/{uuid}/leave',
+  })
+  .errors({
+    FORBIDDEN: {
+      message: 'You are not a member of this channel',
+    },
+  })
+  .input(z.object({ uuid: z.uuid().describe('The uuid of the channel') }));
+
+const removeMemberFromChannel = chatContract
+  .route({
+    method: 'POST',
+    description: 'Remove a user from a channel',
+    path: '/chat/channel/{uuid}/remove-member',
+  })
+  .errors({
+    FORBIDDEN: {
+      message: 'You are not the owner of this channel',
+    },
+  })
+  .input(
+    z.object({
+      uuid: z.uuid().describe('The uuid of the channel'),
+      memberId: z.string().describe('The id of the member to remove'),
+    })
+  );
+
+const addMembersToChannel = chatContract
+  .route({
+    method: 'POST',
+    description: 'Add members to a channel',
+    path: '/chat/channel/{uuid}/add-members',
+  })
+  .errors({
+    FORBIDDEN: {
+      message: 'You are not the owner of this channel',
+    },
+  })
+  .input(
+    z.object({
+      uuid: z.uuid().describe('The uuid of the channel'),
+      memberIds: z.array(z.string()).describe('The ids of the members to add'),
+    })
+  );
+
 const getChannelMessages = chatContract
   .route({
     method: 'GET',
@@ -135,6 +200,10 @@ export default {
   getChannels,
   createChannel,
   getChannel,
+  addMembersToChannel,
+  removeMemberFromChannel,
+  deleteChannel,
+  leaveChannel,
   getChannelMessages,
   sendMessageToChannel,
   streamChannelMessages,

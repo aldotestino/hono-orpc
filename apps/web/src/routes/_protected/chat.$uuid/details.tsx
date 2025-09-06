@@ -1,8 +1,10 @@
 import type { ChannelParticipant, User } from '@hono-orpc/db/schema';
-import { useSuspenseQuery } from '@tanstack/react-query';
-import { createFileRoute, Link } from '@tanstack/react-router';
-import { ChevronLeft, Plus } from 'lucide-react';
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
+import { ChevronLeft, LogOut, Trash2 } from 'lucide-react';
+import AddMembersToChannel from '@/components/add-members-to-channel';
 import ChannelMemberDetails from '@/components/channel-member-details';
+import ConfirmAction from '@/components/confirm-action';
 import { Button } from '@/components/ui/button';
 import { authClient } from '@/lib/auth';
 import { orpc } from '@/lib/orpc-client';
@@ -26,6 +28,24 @@ function RouteComponent() {
 
   const isOwner = data?.user.id === channel.ownerId;
 
+  const navigate = useNavigate();
+
+  const { mutateAsync: leavChannel } = useMutation(
+    orpc.chat.leaveChannel.mutationOptions({
+      onSuccess: () => {
+        navigate({ to: '/chat' });
+      },
+    })
+  );
+
+  const { mutateAsync: deleteChannel } = useMutation(
+    orpc.chat.deleteChannel.mutationOptions({
+      onSuccess: () => {
+        navigate({ to: '/chat' });
+      },
+    })
+  );
+
   return (
     <div className="grid h-screen grid-rows-[1fr_auto] overflow-hidden">
       <div className="overflow-y-auto">
@@ -41,12 +61,10 @@ function RouteComponent() {
         </header>
         <div className="space-y-4 p-4">
           <div className="flex items-center justify-between">
-            <h2 className="font-semibold text-lg">Members</h2>
-            {isOwner && (
-              <Button size="icon" variant="ghost">
-                <Plus />
-              </Button>
-            )}
+            <h2 className="font-semibold text-lg">
+              {channel.participants?.length} Members
+            </h2>
+            {isOwner && <AddMembersToChannel channel={channel} />}
           </div>
           {channel.participants?.map((p) => (
             <ChannelMemberDetails
@@ -60,13 +78,27 @@ function RouteComponent() {
       </div>
       <div className="p-4">
         {isOwner ? (
-          <Button className="w-full" variant="destructive">
-            Delete Channel
-          </Button>
+          <ConfirmAction
+            action={() => deleteChannel({ uuid })}
+            description="Are you sure you want to delete this channel?"
+            title="Delete Channel"
+          >
+            <Button className="w-full" variant="destructive">
+              <Trash2 />
+              Delete Channel
+            </Button>
+          </ConfirmAction>
         ) : (
-          <Button className="w-full" variant="destructive">
-            Leave Channel
-          </Button>
+          <ConfirmAction
+            action={() => leavChannel({ uuid })}
+            description="Are you sure you want to leave this channel?"
+            title="Leave Channel"
+          >
+            <Button className="w-full" variant="destructive">
+              <LogOut />
+              Leave Channel
+            </Button>
+          </ConfirmAction>
         )}
       </div>
     </div>

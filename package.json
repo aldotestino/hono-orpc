@@ -14,7 +14,8 @@
     "db:generate": "bun run --cwd packages/db db:generate",
     "db:migrate": "bun run --cwd packages/db db:migrate",
     "db:push": "bun run --cwd packages/db db:push",
-    "db:studio": "bun run --cwd packages/db db:studio"
+    "db:studio": "bun run --cwd packages/db db:studio",
+    "db:visualizer": "bun run --cwd packages/db db:visualizer"
   },
   "workspaces": [
     "apps/*",
