@@ -14,7 +14,7 @@ function AddUsers({
   initialUsers = [],
   onChange,
 }: {
-  initialUsers?: User[];
+  initialUsers?: (User | null)[];
   onChange: (users: string[]) => void;
 }) {
   const {
@@ -23,7 +23,7 @@ function AddUsers({
     onChange: onChangeDebounced,
   } = useStateWithDebounce('');
 
-  const [users, setUsers] = useState<User[]>(initialUsers);
+  const [users, setUsers] = useState<User[]>([]);
 
   const { data: foundUsers, isLoading } = useQuery(
     orpc.user.searchUser.queryOptions({
@@ -90,7 +90,10 @@ function AddUsers({
               >
                 <UserListItem user={user} />
                 <Checkbox
-                  checked={users.some((u) => u.id === user.id)}
+                  checked={[...users, ...initialUsers].some(
+                    (u) => u?.id === user.id
+                  )}
+                  disabled={initialUsers.some((u) => u?.id === user.id)}
                   id={user.id}
                   onCheckedChange={() => handleAddRemoveUser(user)}
                 />

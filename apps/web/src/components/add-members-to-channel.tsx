@@ -1,9 +1,10 @@
+import type { Channel, ChannelParticipant, User } from '@hono-orpc/db/schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Loader, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod/v4';
+import z from 'zod';
 import AddUsers from '@/components/add-users';
 import { Button } from '@/components/ui/button';
 import {
@@ -23,34 +24,43 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { orpc } from '@/lib/orpc-client';
 
-const channelSchema = z.object({
-  name: z.string().min(1),
+const addMembersSchema = z.object({
   members: z.array(z.string()).min(1),
 });
 
-function NewChannel() {
+function AddMembersToChannel({
+  channel,
+}: {
+  channel: Channel & {
+    participants:
+      | (Omit<ChannelParticipant, 'role'> & {
+          user: User | null;
+          role: unknown;
+        })[]
+      | null;
+  };
+}) {
   const [open, setOpen] = useState(false);
 
   const form = useForm({
-    resolver: zodResolver(channelSchema),
+    resolver: zodResolver(addMembersSchema),
     defaultValues: {
-      name: '',
       members: [],
     },
   });
 
   const queryClient = useQueryClient();
 
-  const { mutateAsync: createChannel, isPending } = useMutation(
-    orpc.chat.createChannel.mutationOptions({
+  const { mutateAsync: addMembersToChannel, isPending } = useMutation(
+    orpc.chat.addMembersToChannel.mutationOptions({
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: orpc.chat.getChannels.queryKey(),
+          queryKey: orpc.chat.getChannel.queryKey({
+            input: { uuid: channel.uuid },
+          }),
         });
-        form.reset();
         setOpen(false);
       },
     })
@@ -59,48 +69,40 @@ function NewChannel() {
   return (
     <Drawer onOpenChange={setOpen} open={open}>
       <DrawerTrigger asChild>
-        <Button>
+        <Button size="icon" variant="ghost">
           <Plus />
-          Channel
         </Button>
       </DrawerTrigger>
-      <DrawerContent className="h-[90%]">
+      <DrawerContent>
         <DrawerHeader>
-          <DrawerTitle>Create a new channel</DrawerTitle>
+          <DrawerTitle>Add Members to Channel</DrawerTitle>
           <DrawerDescription>
-            Create a new channel to chat with your friends.
+            Search and select users to add them as members to this channel.
           </DrawerDescription>
         </DrawerHeader>
 
         <div className="h-full overflow-y-auto p-4">
           <Form {...form}>
             <form
-              className="w-full space-y-6"
-              id="create-channel-form"
-              onSubmit={form.handleSubmit((data) => createChannel(data))}
+              id="add-members-to-channel-form"
+              onSubmit={form.handleSubmit((data) =>
+                addMembersToChannel({
+                  uuid: channel.uuid,
+                  memberIds: data.members,
+                })
+              )}
             >
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="My Channel" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
               <FormField
                 control={form.control}
                 name="members"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Members</FormLabel>
+                    <FormLabel className="sr-onnly">Members</FormLabel>
                     <FormControl>
-                      <AddUsers onChange={field.onChange} />
+                      <AddUsers
+                        initialUsers={channel?.participants?.map((p) => p.user)}
+                        onChange={field.onChange}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -111,9 +113,13 @@ function NewChannel() {
         </div>
 
         <DrawerFooter>
-          <Button disabled={isPending} form="create-channel-form" type="submit">
+          <Button
+            disabled={isPending}
+            form="add-members-to-channel-form"
+            type="submit"
+          >
             {isPending && <Loader className="animate-spin" />}
-            Create Channel
+            Add Members
           </Button>
         </DrawerFooter>
       </DrawerContent>
@@ -121,4 +127,4 @@ function NewChannel() {
   );
 }
 
-export default NewChannel;
+export default AddMembersToChannel;

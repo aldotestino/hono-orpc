@@ -1,7 +1,8 @@
 import type { ChannelParticipant, User } from '@hono-orpc/db/schema';
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
-import { ChevronLeft, LogOut, Plus, Trash2 } from 'lucide-react';
+import { ChevronLeft, LogOut, Trash2 } from 'lucide-react';
+import AddMembersToChannel from '@/components/add-members-to-channel';
 import ChannelMemberDetails from '@/components/channel-member-details';
 import ConfirmAction from '@/components/confirm-action';
 import { Button } from '@/components/ui/button';
@@ -60,12 +61,10 @@ function RouteComponent() {
         </header>
         <div className="space-y-4 p-4">
           <div className="flex items-center justify-between">
-            <h2 className="font-semibold text-lg">Members</h2>
-            {isOwner && (
-              <Button size="icon" variant="ghost">
-                <Plus />
-              </Button>
-            )}
+            <h2 className="font-semibold text-lg">
+              {channel.participants?.length} Members
+            </h2>
+            {isOwner && <AddMembersToChannel channel={channel} />}
           </div>
           {channel.participants?.map((p) => (
             <ChannelMemberDetails
