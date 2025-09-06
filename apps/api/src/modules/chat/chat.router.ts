@@ -2,7 +2,8 @@ import db from '@hono-orpc/db';
 import type { Message, User } from '@hono-orpc/db/schema';
 import { channel, channelParticipant, message } from '@hono-orpc/db/tables';
 import { EventPublisher, implement } from '@orpc/server';
-import { eq } from 'drizzle-orm';
+import { userIsChannelOwnerMiddleware } from 'apps/api/src/middlewares/user-is-channel-owner-middleware';
+import { and, eq } from 'drizzle-orm';
 import { authMiddleware } from '../../middlewares/auth-middleware';
 import { userInChannelMiddleware } from '../../middlewares/user-in-channel-middleware';
 import chatContract from './chat.contract';
@@ -81,6 +82,53 @@ const getChannel = chatRouter.getChannel
     return ch;
   });
 
+const addMembersToChannel = chatRouter.addMembersToChannel
+  .use(authMiddleware)
+  .use(userIsChannelOwnerMiddleware)
+  .handler(async ({ input }) => {
+    await db.insert(channelParticipant).values(
+      input.memberIds.map((memberId) => ({
+        channelUuid: input.uuid,
+        userId: memberId,
+      }))
+    );
+  });
+
+const removeMemberFromChannel = chatRouter.removeMemberFromChannel
+  .use(authMiddleware)
+  .use(userIsChannelOwnerMiddleware)
+  .handler(async ({ input }) => {
+    await db
+      .delete(channelParticipant)
+      .where(
+        and(
+          eq(channelParticipant.channelUuid, input.uuid),
+          eq(channelParticipant.userId, input.memberId)
+        )
+      );
+  });
+
+const deleteChannel = chatRouter.deleteChannel
+  .use(authMiddleware)
+  .use(userIsChannelOwnerMiddleware)
+  .handler(async ({ input }) => {
+    await db.delete(channel).where(eq(channel.uuid, input.uuid));
+  });
+
+const leaveChannel = chatRouter.leaveChannel
+  .use(authMiddleware)
+  .use(userInChannelMiddleware)
+  .handler(async ({ input, context }) => {
+    await db
+      .delete(channelParticipant)
+      .where(
+        and(
+          eq(channelParticipant.channelUuid, input.uuid),
+          eq(channelParticipant.userId, context.user.id)
+        )
+      );
+  });
+
 const getChannelMessages = chatRouter.getChannelMessages
   .use(authMiddleware)
   .use(userInChannelMiddleware)
@@ -133,6 +181,10 @@ export default {
   getChannels,
   createChannel,
   getChannel,
+  addMembersToChannel,
+  removeMemberFromChannel,
+  deleteChannel,
+  leaveChannel,
   getChannelMessages,
   sendMessageToChannel,
   streamChannelMessages,

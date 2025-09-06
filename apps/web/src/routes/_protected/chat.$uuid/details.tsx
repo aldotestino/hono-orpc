@@ -1,7 +1,7 @@
 import type { ChannelParticipant, User } from '@hono-orpc/db/schema';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
-import { ChevronLeft, Plus } from 'lucide-react';
+import { ChevronLeft, LogOut, Plus, Trash2 } from 'lucide-react';
 import ChannelMemberDetails from '@/components/channel-member-details';
 import { Button } from '@/components/ui/button';
 import { authClient } from '@/lib/auth';
@@ -61,10 +61,12 @@ function RouteComponent() {
       <div className="p-4">
         {isOwner ? (
           <Button className="w-full" variant="destructive">
+            <Trash2 />
             Delete Channel
           </Button>
         ) : (
           <Button className="w-full" variant="destructive">
+            <LogOut />
             Leave Channel
           </Button>
         )}

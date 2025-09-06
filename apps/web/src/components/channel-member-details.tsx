@@ -19,6 +19,7 @@ import { authClient } from '@/lib/auth';
 function ChannelMemberDetails({
   channelOwnerId,
   member,
+  isOwner,
 }: {
   member: ChannelParticipant & { user: User | null };
   channelOwnerId: string;
@@ -62,12 +63,14 @@ function ChannelMemberDetails({
                 </span>
               </div>
 
-              <DrawerFooter>
-                <Button variant="destructive">
-                  <Trash2 />
-                  Remove From Channel
-                </Button>
-              </DrawerFooter>
+              {isOwner && (
+                <DrawerFooter>
+                  <Button variant="destructive">
+                    <Trash2 />
+                    Remove From Channel
+                  </Button>
+                </DrawerFooter>
+              )}
             </DrawerContent>
           </Drawer>
         )}

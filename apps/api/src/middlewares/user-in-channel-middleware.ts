@@ -6,28 +6,20 @@ import { channelParticipant } from 'packages/db/src/tables';
 
 export const userInChannelMiddleware = os
   .$context<{ headers: Headers; user: User }>()
-  .middleware(
-    async (
-      { context, next },
-      input: { channelUuid: string } | { uuid: string }
-    ) => {
-      const [userInChannel] = await db
-        .select()
-        .from(channelParticipant)
-        .where(
-          and(
-            eq(
-              channelParticipant.channelUuid,
-              'channelUuid' in input ? input.channelUuid : input.uuid
-            ),
-            eq(channelParticipant.userId, context.user.id)
-          )
-        );
+  .middleware(async ({ context, next }, input: { uuid: string }) => {
+    const [userInChannel] = await db
+      .select()
+      .from(channelParticipant)
+      .where(
+        and(
+          eq(channelParticipant.channelUuid, input.uuid),
+          eq(channelParticipant.userId, context.user.id)
+        )
+      );
 
-      if (!userInChannel) {
-        throw new ORPCError('FORBIDDEN');
-      }
-
-      return next();
+    if (!userInChannel) {
+      throw new ORPCError('FORBIDDEN');
     }
-  );
+
+    return next();
+  });
