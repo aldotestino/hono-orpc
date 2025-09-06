@@ -1,3 +1,4 @@
+import type { User } from '@hono-orpc/db/schema';
 import { useQuery } from '@tanstack/react-query';
 import { Loader, Search, X } from 'lucide-react';
 import { useState } from 'react';
@@ -8,13 +9,12 @@ import { Input } from '@/components/ui/input';
 import UserListItem from '@/components/user-list-item';
 import { useStateWithDebounce } from '@/lib/hooks/use-debounce';
 import { orpc } from '@/lib/orpc-client';
-import type { SimpleUser } from '@/lib/types';
 
 function AddUsers({
   initialUsers = [],
   onChange,
 }: {
-  initialUsers?: SimpleUser[];
+  initialUsers?: User[];
   onChange: (users: string[]) => void;
 }) {
   const {
@@ -23,7 +23,7 @@ function AddUsers({
     onChange: onChangeDebounced,
   } = useStateWithDebounce('');
 
-  const [users, setUsers] = useState<SimpleUser[]>(initialUsers);
+  const [users, setUsers] = useState<User[]>(initialUsers);
 
   const { data: foundUsers, isLoading } = useQuery(
     orpc.user.searchUser.queryOptions({
@@ -32,7 +32,7 @@ function AddUsers({
     })
   );
 
-  function handleAddRemoveUser(user: SimpleUser) {
+  function handleAddRemoveUser(user: User) {
     const userExists = users.some((u) => u.id === user.id);
     const newUsers = userExists
       ? users.filter((u) => u.id !== user.id)
