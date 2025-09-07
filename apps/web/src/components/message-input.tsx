@@ -21,7 +21,7 @@ function MessageInput({ channelUuid }: { channelUuid: string }) {
   });
 
   const { mutateAsync: sendMessage, isPending } = useMutation(
-    orpc.chat.sendMessageToChannel.mutationOptions({
+    orpc.chat.message.sendMessageToChannel.mutationOptions({
       onMutate: () => {
         form.reset();
       },

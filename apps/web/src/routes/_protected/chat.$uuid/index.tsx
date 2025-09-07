@@ -16,10 +16,12 @@ export const Route = createFileRoute('/_protected/chat/$uuid/')({
   loader: async ({ context: { queryClient }, params }) => {
     await Promise.all([
       queryClient.ensureQueryData(
-        orpc.chat.getChannel.queryOptions({ input: { uuid: params.uuid } })
+        orpc.chat.channel.getChannel.queryOptions({
+          input: { uuid: params.uuid },
+        })
       ),
       queryClient.ensureQueryData(
-        orpc.chat.getChannelMessages.queryOptions({
+        orpc.chat.message.getChannelMessages.queryOptions({
           input: { uuid: params.uuid },
         })
       ),
@@ -33,8 +35,8 @@ function RouteComponent() {
 
   const [{ data: channel }, { data: messages }] = useSuspenseQueries({
     queries: [
-      orpc.chat.getChannel.queryOptions({ input: { uuid } }),
-      orpc.chat.getChannelMessages.queryOptions({
+      orpc.chat.channel.getChannel.queryOptions({ input: { uuid } }),
+      orpc.chat.message.getChannelMessages.queryOptions({
         input: { uuid },
       }),
     ],
@@ -45,14 +47,14 @@ function RouteComponent() {
     isError: isLiveMessagesError,
     fetchStatus: liveMessagesFetchStatus,
   } = useQuery({
-    queryKey: orpc.chat.streamChannelMessages.queryKey({
+    queryKey: orpc.chat.message.streamChannelMessages.queryKey({
       input: { uuid },
     }),
     // workaround for https://github.com/TanStack/query/releases/tag/v5.86.0 (queryFn -> streamFn)
     // when fixes, use the commented out code below
     queryFn: experimental_streamedQuery({
       streamFn: ({ signal }) =>
-        client.chat.streamChannelMessages({ uuid }, { signal }),
+        client.chat.message.streamChannelMessages({ uuid }, { signal }),
     }),
   });
 

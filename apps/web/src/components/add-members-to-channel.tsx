@@ -54,10 +54,10 @@ function AddMembersToChannel({
   const queryClient = useQueryClient();
 
   const { mutateAsync: addMembersToChannel, isPending } = useMutation(
-    orpc.chat.addMembersToChannel.mutationOptions({
+    orpc.chat.channel.addMembersToChannel.mutationOptions({
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: orpc.chat.getChannel.queryKey({
+          queryKey: orpc.chat.channel.getChannel.queryKey({
             input: { uuid: channel.uuid },
           }),
         });

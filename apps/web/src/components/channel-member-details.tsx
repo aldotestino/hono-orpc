@@ -33,10 +33,10 @@ function ChannelMemberDetails({
   const queryClient = useQueryClient();
 
   const { mutateAsync: removeMemberFromChannel } = useMutation(
-    orpc.chat.removeMemberFromChannel.mutationOptions({
+    orpc.chat.channel.removeMemberFromChannel.mutationOptions({
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: orpc.chat.getChannel.queryKey({
+          queryKey: orpc.chat.channel.getChannel.queryKey({
             input: { uuid: member.channelUuid },
           }),
         });

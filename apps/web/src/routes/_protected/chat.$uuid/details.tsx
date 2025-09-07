@@ -16,7 +16,9 @@ export const Route = createFileRoute('/_protected/chat/$uuid/details')({
   component: RouteComponent,
   loader: async ({ context: { queryClient }, params }) =>
     queryClient.ensureQueryData(
-      orpc.chat.getChannel.queryOptions({ input: { uuid: params.uuid } })
+      orpc.chat.channel.getChannel.queryOptions({
+        input: { uuid: params.uuid },
+      })
     ),
 });
 
@@ -26,7 +28,7 @@ function RouteComponent() {
   const { data } = authClient.useSession();
 
   const { data: channel } = useSuspenseQuery(
-    orpc.chat.getChannel.queryOptions({ input: { uuid } })
+    orpc.chat.channel.getChannel.queryOptions({ input: { uuid } })
   );
 
   const isOwner = data?.user.id === channel.ownerId;
@@ -38,23 +40,23 @@ function RouteComponent() {
   function cleanupQueries() {
     return Promise.all([
       queryClient.removeQueries({
-        queryKey: orpc.chat.getChannel.queryKey({
+        queryKey: orpc.chat.channel.getChannel.queryKey({
           input: { uuid },
         }),
       }),
       queryClient.removeQueries({
-        queryKey: orpc.chat.getChannelMessages.queryKey({
+        queryKey: orpc.chat.message.getChannelMessages.queryKey({
           input: { uuid },
         }),
       }),
       queryClient.invalidateQueries({
-        queryKey: orpc.chat.getChannels.queryKey(),
+        queryKey: orpc.chat.channel.getChannels.queryKey(),
       }),
     ]);
   }
 
   const { mutateAsync: leaveChannel } = useMutation(
-    orpc.chat.leaveChannel.mutationOptions({
+    orpc.chat.channel.leaveChannel.mutationOptions({
       onSuccess: async () => {
         await cleanupQueries();
         navigate({ to: '/chat' });
@@ -63,7 +65,7 @@ function RouteComponent() {
   );
 
   const { mutateAsync: deleteChannel } = useMutation(
-    orpc.chat.deleteChannel.mutationOptions({
+    orpc.chat.channel.deleteChannel.mutationOptions({
       onSuccess: async () => {
         await cleanupQueries();
         navigate({ to: '/chat' });

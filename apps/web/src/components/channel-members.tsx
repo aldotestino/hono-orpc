@@ -17,7 +17,7 @@ function ChannelMembers({
   onLeaveChannel: () => void;
 }) {
   const { data: channel } = useSuspenseQuery(
-    orpc.chat.getChannel.queryOptions({ input: { uuid: channelUuid } })
+    orpc.chat.channel.getChannel.queryOptions({ input: { uuid: channelUuid } })
   );
 
   return (
