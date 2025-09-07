@@ -1,16 +1,16 @@
-import type { Message, User } from '@hono-orpc/db/schema';
-import { createOpenRouter } from '@openrouter/ai-sdk-provider';
-import { generateText, type ModelMessage, stepCountIs } from 'ai';
-import tools from './tools';
+import type { Message, User } from "@hono-orpc/db/schema";
+import { createOpenRouter } from "@openrouter/ai-sdk-provider";
+import { generateText, type ModelMessage, stepCountIs, type Tool } from "ai";
+import tools from "./tools";
 
 type GenerateResponseProps = {
   messages: (Message & { sender: User | null })[];
   model?: string;
-  enableTools?: boolean;
+  extraTools?: Record<string, Tool>;
 };
 
 const SYSTEM_PROMPT = `
-You are a human-like participant in a group chat. Reply like a normal user: brief, helpful, and conversational. Do not mention you are an AI unless asked.
+You are ChatAI, a human-like participant in a group chat. Reply like a normal user: brief, helpful, and conversational. Do not mention you are an AI unless asked.
 
 Message format:
 
@@ -65,15 +65,15 @@ const openRouter = createOpenRouter({
 const toModelMessage = (
   message: Message & { sender: User | null }
 ): ModelMessage => {
-  if (message.sender) {
+  if (message.sender && message.senderId !== "ai") {
     return {
-      role: 'user',
-      content: `${message.sender.name}\n\n${message.content.replace('@ai', '')}`,
+      role: "user",
+      content: `${message.sender.name}\n\n${message.content.replace("@ai", "")}`,
     };
   }
 
   return {
-    role: 'assistant',
+    role: "assistant",
     content: message.content,
   };
 };
@@ -82,25 +82,34 @@ const toModelMessage = (
  * Generate a response from the AI
  * @param messages - The messages to generate a response from
  * @param model - The model to use (optional, defaults to 'openai/gpt-oss-120b:free')
- * @param enableTools - Whether to use tools (optional, defaults to false)
  * @returns The response from the AI
  */
 
 export function generateResponse({
   messages,
   model,
-  enableTools,
+  extraTools,
 }: GenerateResponseProps) {
   const modelMessages = messages.map(toModelMessage);
 
-  const _model = model || 'openai/gpt-oss-120b:free';
-  const _enableTools = enableTools && model !== 'openai/gpt-oss-120b:free';
+  const _model = model || "openai/gpt-oss-120b:free";
+  const enableTools = [
+    "openrouter/sonoma-dusk-alpha",
+    "openrouter/sonoma-sky-alpha",
+  ].includes(_model);
 
   return generateText({
     model: openRouter(_model),
     system: SYSTEM_PROMPT,
     stopWhen: stepCountIs(10),
-    ...(_enableTools ? { tools } : {}),
+    ...(enableTools
+      && {
+          tools: {
+            ...tools,
+            ...extraTools,
+          },
+        }
+      ),
     messages: modelMessages,
   });
 }

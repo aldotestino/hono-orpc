@@ -1,10 +1,10 @@
 import db from "@hono-orpc/db";
 import type { Message, User } from "@hono-orpc/db/schema";
-import { message } from "@hono-orpc/db/tables";
+import { channel, message } from "@hono-orpc/db/tables";
 import { EventPublisher, implement } from "@orpc/server";
 import { eq } from "drizzle-orm";
 import { CHAT_AI_USER } from "../../../lib/seed";
-import { generateAIResponse, getChannelSettings } from "../../../lib/utils";
+import { generateAIResponse } from "../../../lib/utils";
 import { authMiddleware } from "../../../middlewares/auth-middleware";
 import { userInChannelMiddleware } from "../../../middlewares/user-in-channel-middleware";
 import messageContract from "./message.contract";
@@ -78,13 +78,15 @@ const sendMessageToChannel = messageRouter.sendMessageToChannel
     }
 
     if (input.content.includes("@ai")) {
-      const settings = await getChannelSettings(input.uuid);
+      const ch = await db.query.channel.findFirst({
+        where: eq(channel.uuid, input.uuid),
+      });
 
-      if (!settings) {
+      if (!ch) {
         throw errors.INTERNAL_SERVER_ERROR();
       }
 
-      if (!settings.ai.enabled) {
+      if (!ch.settings.ai.enabled) {
         // biome-ignore lint/suspicious/noConsole: DEBUG
         console.log(
           `[sendMessageToChannel] AI is not enabled for channel: ${input.uuid}`
@@ -92,7 +94,7 @@ const sendMessageToChannel = messageRouter.sendMessageToChannel
         return msg;
       }
 
-      const aiResponse = await generateAIResponse(input.uuid, settings.ai);
+      const aiResponse = await generateAIResponse(input.uuid, ch.settings.ai);
 
       await saveAndPublishMessage({
         channelUuid: input.uuid,

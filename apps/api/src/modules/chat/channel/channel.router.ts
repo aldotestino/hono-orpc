@@ -1,11 +1,11 @@
-import db from '@hono-orpc/db';
-import { channel, channelParticipant } from '@hono-orpc/db/tables';
-import { implement } from '@orpc/server';
-import { and, eq } from 'drizzle-orm';
-import { authMiddleware } from '../../../middlewares/auth-middleware';
-import { userInChannelMiddleware } from '../../../middlewares/user-in-channel-middleware';
-import { userIsChannelOwnerMiddleware } from '../../../middlewares/user-is-channel-owner-middleware';
-import channelContract from './channel.contract';
+import db from "@hono-orpc/db";
+import { channel, channelParticipant } from "@hono-orpc/db/tables";
+import { implement } from "@orpc/server";
+import { and, eq } from "drizzle-orm";
+import { authMiddleware } from "../../../middlewares/auth-middleware";
+import { userInChannelMiddleware } from "../../../middlewares/user-in-channel-middleware";
+import { userIsChannelOwnerMiddleware } from "../../../middlewares/user-is-channel-owner-middleware";
+import channelContract from "./channel.contract";
 
 const chatRouter = implement(channelContract).$context<{ headers: Headers }>();
 
@@ -35,7 +35,7 @@ const createChannel = chatRouter.createChannel
 
     if (!ch) {
       throw errors.INTERNAL_SERVER_ERROR({
-        message: 'Failed to create channel',
+        message: "Failed to create channel",
       });
     }
 
@@ -44,7 +44,7 @@ const createChannel = chatRouter.createChannel
       {
         channelUuid: ch.uuid,
         userId: context.user.id,
-        role: 'owner',
+        role: "owner",
       },
       ...input.members.map((userId) => ({
         channelUuid: ch.uuid,
@@ -124,6 +124,33 @@ const leaveChannel = chatRouter.leaveChannel
       );
   });
 
+const getChannelSettings = chatRouter.getChannelSettings
+  .use(authMiddleware)
+  .use(userIsChannelOwnerMiddleware)
+  .handler(async ({ input, errors }) => {
+    const ch = await db.query.channel.findFirst({
+      where: eq(channel.uuid, input.uuid),
+    });
+
+    if (!ch) {
+      throw errors.NOT_FOUND();
+    }
+
+    return ch.settings;
+  });
+
+const setChannelSettings = chatRouter.setChannelSettings
+  .use(authMiddleware)
+  .use(userIsChannelOwnerMiddleware)
+  .handler(async ({ input }) => {
+    await db
+      .update(channel)
+      .set({ settings: input.settings })
+      .where(eq(channel.uuid, input.uuid));
+
+    return input.settings;
+  });
+
 export default {
   getChannels,
   createChannel,
@@ -132,4 +159,6 @@ export default {
   removeMemberFromChannel,
   deleteChannel,
   leaveChannel,
+  getChannelSettings,
+  setChannelSettings,
 };

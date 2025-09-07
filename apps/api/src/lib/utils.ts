@@ -1,20 +1,31 @@
+import { generateResponse } from "@hono-orpc/ai";
 import db from "@hono-orpc/db";
-import { channel, message } from "@hono-orpc/db/tables";
+import type { ChannelSettings } from "@hono-orpc/db/schema";
+import { channelParticipant, message } from "@hono-orpc/db/tables";
+import { tool } from "ai";
 import { desc, eq } from "drizzle-orm";
-import { generateResponse } from "packages/ai/src";
-import type { ChannelSettings } from "packages/db/src/schema";
+import { z } from "zod/v4";
+import fs from "fs";
 
-export const getChannelSettings = async (channelUuid: string) => {
-  const ch = await db.query.channel.findFirst({
-    where: eq(channel.uuid, channelUuid),
-  });
-
-  if (!ch) {
-    return null;
-  }
-
-  return ch?.settings;
-};
+const getExtraTools = (channelUuid: string) => ({
+  channelMembers: tool({
+    description: "Get the members of the channel",
+    inputSchema: z.object({}),
+    execute: async () => {
+      const members = await db.query.channelParticipant.findMany({
+        where: eq(channelParticipant.channelUuid, channelUuid),
+        with: {
+          user: true,
+        },
+      });
+      return members.map(m => ({
+        role: m.role,
+        name: m.user.name,
+        email: m.user.email
+      }));
+    },
+  })
+});
 
 export const generateAIResponse = async (
   channelUuid: string,
@@ -23,7 +34,7 @@ export const generateAIResponse = async (
   const lastMessages = await db.query.message.findMany({
     where: eq(message.channelUuid, channelUuid),
     orderBy: desc(message.createdAt),
-    limit: 10,
+    limit: channelAISettings.maxMessages,
     with: {
       sender: true,
     },
@@ -40,7 +51,7 @@ export const generateAIResponse = async (
     const response = await generateResponse({
       messages: invertedMessages,
       model: channelAISettings.model,
-      enableTools: channelAISettings.tools,
+      extraTools: getExtraTools(channelUuid),
     });
 
     // biome-ignore lint/suspicious/noConsole: DEBUG

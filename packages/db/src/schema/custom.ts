@@ -6,11 +6,12 @@ export const channelSettingsSchema = z.object({
     model: z
       .enum([
         "openrouter/sonoma-dusk-alpha",
+        "openrouter/sonoma-sky-alpha",
         "openai/gpt-oss-120b:free",
         "openai/gpt-oss-20b:free",
       ])
       .default("openrouter/sonoma-dusk-alpha"),
-    tools: z.boolean().default(false),
+    maxMessages: z.number().default(10),
   }),
 });
 export type ChannelSettings = z.infer<typeof channelSettingsSchema>;
