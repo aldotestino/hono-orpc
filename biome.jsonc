@@ -3,6 +3,10 @@
   "extends": ["ultracite"],
   "linter": {
     "rules": {
+      "performance": {
+        "noNamespaceImport": "off",
+        "noBarrelFile": "off"
+      },
       "complexity": {
         "noExcessiveLinesPerFunction": "off"
       }

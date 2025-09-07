@@ -1,17 +1,51 @@
-import { generateResponse } from '@hono-orpc/ai';
-import db from '@hono-orpc/db';
-import type { Message, User } from '@hono-orpc/db/schema';
-import { message } from '@hono-orpc/db/tables';
-import { EventPublisher, implement } from '@orpc/server';
-import { desc, eq } from 'drizzle-orm';
-import { CHAT_AI_USER } from '../../../lib/seed';
-import { authMiddleware } from '../../../middlewares/auth-middleware';
-import { userInChannelMiddleware } from '../../../middlewares/user-in-channel-middleware';
-import messageContract from './message.contract';
+import db from "@hono-orpc/db";
+import type { Message, User } from "@hono-orpc/db/schema";
+import { message } from "@hono-orpc/db/tables";
+import { EventPublisher, implement } from "@orpc/server";
+import { eq } from "drizzle-orm";
+import { CHAT_AI_USER } from "../../../lib/seed";
+import { generateAIResponse, getChannelSettings } from "../../../lib/utils";
+import { authMiddleware } from "../../../middlewares/auth-middleware";
+import { userInChannelMiddleware } from "../../../middlewares/user-in-channel-middleware";
+import messageContract from "./message.contract";
 
 const publisher = new EventPublisher<
   Record<string, Message & { sender: User | null }>
 >();
+
+const saveAndPublishMessage = async ({
+  channelUuid,
+  content,
+  sender,
+}: {
+  channelUuid: string;
+  content: string;
+  sender: User;
+}) => {
+  const [msg] = await db
+    .insert(message)
+    .values({
+      channelUuid,
+      content,
+      senderId: sender.id,
+    })
+    .returning();
+
+  if (!msg) {
+    // biome-ignore lint/suspicious/noConsole: DEBUG
+    console.error(
+      `[saveAndPublishMessage] Failed to save message: ${JSON.stringify({ channelUuid, content, sender })}`
+    );
+    return null;
+  }
+
+  publisher.publish(channelUuid, {
+    ...msg,
+    sender,
+  });
+
+  return msg;
+};
 
 const messageRouter = implement(messageContract).$context<{
   headers: Headers;
@@ -33,73 +67,36 @@ const sendMessageToChannel = messageRouter.sendMessageToChannel
   .use(authMiddleware)
   .use(userInChannelMiddleware)
   .handler(async ({ context, input, errors }) => {
-    const [msg] = await db
-      .insert(message)
-      .values({
-        channelUuid: input.uuid,
-        content: input.content,
-        senderId: context.user.id,
-      })
-      .returning();
+    const msg = await saveAndPublishMessage({
+      channelUuid: input.uuid,
+      content: input.content,
+      sender: context.user as User,
+    });
 
     if (!msg) {
       throw errors.INTERNAL_SERVER_ERROR();
     }
 
-    publisher.publish(input.uuid, {
-      ...msg,
-      sender: context.user as User,
-    });
+    if (input.content.includes("@ai")) {
+      const settings = await getChannelSettings(input.uuid);
 
-    if (input.content.includes('@ai')) {
-      const lastMessages = await db.query.message.findMany({
-        where: eq(message.channelUuid, input.uuid),
-        orderBy: desc(message.createdAt),
-        limit: 10,
-        with: {
-          sender: true,
-        },
-      });
-
-      const invertedMessages = lastMessages.reverse();
-
-      let aiTextContent: string;
-
-      try {
-        const response = await generateResponse({
-          messages: invertedMessages,
-          model: 'openrouter/sonoma-dusk-alpha',
-          enableTools: true,
-        });
-
-        const lastResponse = response.content.at(-1);
-
-        if (!lastResponse || lastResponse.type !== 'text') {
-          throw new Error('Last response is not a text');
-        }
-
-        aiTextContent = lastResponse.text;
-      } catch (error) {
-        // biome-ignore lint/suspicious/noConsole: debug ai response error
-        console.error(error);
-        aiTextContent = 'Failed to generate response';
-      }
-
-      const [aiMsg] = await db
-        .insert(message)
-        .values({
-          channelUuid: input.uuid,
-          content: aiTextContent,
-          senderId: CHAT_AI_USER.id,
-        })
-        .returning();
-
-      if (!aiMsg) {
+      if (!settings) {
         throw errors.INTERNAL_SERVER_ERROR();
       }
 
-      publisher.publish(input.uuid, {
-        ...aiMsg,
+      if (!settings.ai.enabled) {
+        // biome-ignore lint/suspicious/noConsole: DEBUG
+        console.log(
+          `[sendMessageToChannel] AI is not enabled for channel: ${input.uuid}`
+        );
+        return msg;
+      }
+
+      const aiResponse = await generateAIResponse(input.uuid, settings.ai);
+
+      await saveAndPublishMessage({
+        channelUuid: input.uuid,
+        content: aiResponse,
         sender: CHAT_AI_USER,
       });
     }
