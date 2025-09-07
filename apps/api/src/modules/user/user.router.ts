@@ -2,6 +2,7 @@ import db from '@hono-orpc/db';
 import { user } from '@hono-orpc/db/tables';
 import { implement } from '@orpc/server';
 import { and, eq, like, not, or } from 'drizzle-orm';
+import { CHAT_AI_USER } from '../../lib/seed';
 import { authMiddleware } from '../../middlewares/auth-middleware';
 import userContract from './user.contract';
 
@@ -13,6 +14,7 @@ const searchUser = userRouter.searchUser
     const users = await db.query.user.findMany({
       where: and(
         not(eq(user.id, context.user.id)),
+        not(eq(user.id, CHAT_AI_USER.id)),
         or(
           like(user.name, `%${input.query}%`),
           like(user.email, `%${input.query}%`)

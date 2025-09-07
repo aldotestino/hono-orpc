@@ -6,7 +6,7 @@ import tools from './tools';
 type GenerateResponseProps = {
   messages: (Message & { sender: User | null })[];
   model?: string;
-  toolCalling?: boolean;
+  enableTools?: boolean;
 };
 
 const SYSTEM_PROMPT = `
@@ -81,25 +81,26 @@ const toModelMessage = (
 /**
  * Generate a response from the AI
  * @param messages - The messages to generate a response from
- * @param model - The model to use (optional, defaults to MODEL env var or 'openai/gpt-oss-120b:free')
- * @param toolCalling - Whether to use tools (optional, defaults to TOOL_CALLING env var or false)
+ * @param model - The model to use (optional, defaults to 'openai/gpt-oss-120b:free')
+ * @param enableTools - Whether to use tools (optional, defaults to false)
  * @returns The response from the AI
  */
+
 export function generateResponse({
   messages,
   model,
-  toolCalling,
+  enableTools,
 }: GenerateResponseProps) {
   const modelMessages = messages.map(toModelMessage);
 
-  const _model = model || process.env.MODEL || 'openai/gpt-oss-120b:free';
-  const _toolCalling = toolCalling || process.env.TOOL_CALLING === 'true';
+  const _model = model || 'openai/gpt-oss-120b:free';
+  const _enableTools = enableTools && model !== 'openai/gpt-oss-120b:free';
 
   return generateText({
     model: openRouter(_model),
     system: SYSTEM_PROMPT,
     stopWhen: stepCountIs(10),
-    ...(_toolCalling ? { tools } : {}),
+    ...(_enableTools ? { tools } : {}),
     messages: modelMessages,
   });
 }

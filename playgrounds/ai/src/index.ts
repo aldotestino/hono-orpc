@@ -37,8 +37,8 @@ const response = await generateResponse({
     botMessage("Sure, what's the problem?"),
     userMessage("What's (2 + 3) * 2?"),
   ],
-  model: process.env.MODEL,
-  toolCalling: true,
+  model: 'openrouter/sonoma-dusk-alpha',
+  enableTools: true,
 });
 
 console.log(response.content);

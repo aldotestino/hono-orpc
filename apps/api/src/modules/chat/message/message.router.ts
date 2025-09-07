@@ -4,6 +4,7 @@ import type { Message, User } from '@hono-orpc/db/schema';
 import { message } from '@hono-orpc/db/tables';
 import { EventPublisher, implement } from '@orpc/server';
 import { desc, eq } from 'drizzle-orm';
+import { CHAT_AI_USER } from '../../../lib/seed';
 import { authMiddleware } from '../../../middlewares/auth-middleware';
 import { userInChannelMiddleware } from '../../../middlewares/user-in-channel-middleware';
 import messageContract from './message.contract';
@@ -67,6 +68,8 @@ const sendMessageToChannel = messageRouter.sendMessageToChannel
       try {
         const response = await generateResponse({
           messages: invertedMessages,
+          model: 'openrouter/sonoma-dusk-alpha',
+          enableTools: true,
         });
 
         const lastResponse = response.content.at(-1);
@@ -87,7 +90,7 @@ const sendMessageToChannel = messageRouter.sendMessageToChannel
         .values({
           channelUuid: input.uuid,
           content: aiTextContent,
-          senderId: 'ai',
+          senderId: CHAT_AI_USER.id,
         })
         .returning();
 
@@ -97,12 +100,7 @@ const sendMessageToChannel = messageRouter.sendMessageToChannel
 
       publisher.publish(input.uuid, {
         ...aiMsg,
-        sender: {
-          id: 'ai',
-          name: 'ChatAI',
-          email: 'chatai@hono-orpc.com',
-          image: null,
-        },
+        sender: CHAT_AI_USER,
       });
     }
 

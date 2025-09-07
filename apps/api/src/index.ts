@@ -1,29 +1,15 @@
-import { user } from '@hono-orpc/db/tables';
 import { OpenAPIHandler } from '@orpc/openapi/fetch';
 import { OpenAPIReferencePlugin } from '@orpc/openapi/plugins';
 import { ZodToJsonSchemaConverter } from '@orpc/zod/zod4';
-import { auth } from 'apps/api/src/lib/auth';
-import { serveWebApp } from 'apps/api/src/middlewares/serve-web-app';
 import { Hono } from 'hono';
 import { logger } from 'hono/logger';
-import db from 'packages/db/src';
+import { auth } from './lib/auth';
+import { seedChatAIUser } from './lib/seed';
+import { serveWebApp } from './middlewares/serve-web-app';
 import router from './modules/router';
 
 // seed db with ai user
-try {
-  await db
-    .insert(user)
-    .values({
-      id: 'ai',
-      name: 'ChatAI',
-      email: 'chatai@hono-orpc.com',
-    })
-    .onConflictDoNothing();
-} catch (error) {
-  // biome-ignore lint/suspicious/noConsole: seed db
-  console.error(error);
-  process.exit(1);
-}
+await seedChatAIUser();
 
 const handler = new OpenAPIHandler(router, {
   plugins: [
