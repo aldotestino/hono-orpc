@@ -1,5 +1,6 @@
-import { relations } from 'drizzle-orm';
-import { channel, channelParticipant, message, user } from '../tables';
+import { relations } from "drizzle-orm";
+import { user } from "../tables/auth";
+import { channel, channelParticipant, message } from "../tables/chat";
 
 export const userRelations = relations(user, ({ many }) => ({
   messages: many(message),

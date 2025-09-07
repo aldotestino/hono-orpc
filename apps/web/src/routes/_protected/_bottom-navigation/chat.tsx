@@ -4,12 +4,14 @@ import { orpc } from '@/lib/orpc-client';
 
 export const Route = createFileRoute('/_protected/_bottom-navigation/chat')({
   loader: ({ context: { queryClient } }) =>
-    queryClient.ensureQueryData(orpc.chat.getChannels.queryOptions()),
+    queryClient.ensureQueryData(orpc.chat.channel.getChannels.queryOptions()),
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { data } = useSuspenseQuery(orpc.chat.getChannels.queryOptions());
+  const { data } = useSuspenseQuery(
+    orpc.chat.channel.getChannels.queryOptions()
+  );
 
   return (
     <main>

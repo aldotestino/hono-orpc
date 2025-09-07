@@ -45,10 +45,10 @@ function NewChannel() {
   const queryClient = useQueryClient();
 
   const { mutateAsync: createChannel, isPending } = useMutation(
-    orpc.chat.createChannel.mutationOptions({
+    orpc.chat.channel.createChannel.mutationOptions({
       onSuccess: () => {
         queryClient.invalidateQueries({
-          queryKey: orpc.chat.getChannels.queryKey(),
+          queryKey: orpc.chat.channel.getChannels.queryKey(),
         });
         form.reset();
         setOpen(false);
