@@ -69,8 +69,9 @@ function AddMembersToChannel({
   return (
     <Drawer onOpenChange={setOpen} open={open}>
       <DrawerTrigger asChild>
-        <Button size="icon" variant="ghost">
+        <Button className="w-full" variant="outline">
           <Plus />
+          Add Members
         </Button>
       </DrawerTrigger>
       <DrawerContent>

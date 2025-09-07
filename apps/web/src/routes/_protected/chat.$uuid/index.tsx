@@ -4,7 +4,7 @@ import {
   useSuspenseQueries,
 } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
-import { ChevronLeft, Settings } from 'lucide-react';
+import { ChevronLeft, Menu } from 'lucide-react';
 import LiveMessagesStatusIndicator from '@/components/live-messages-status-indicator';
 import MessageBox from '@/components/message-box';
 import MessageInput from '@/components/message-input';
@@ -96,7 +96,7 @@ function RouteComponent() {
             />
             <Button asChild size="icon" variant="ghost">
               <Link params={{ uuid }} to="/chat/$uuid/details">
-                <Settings />
+                <Menu />
               </Link>
             </Button>
           </div>

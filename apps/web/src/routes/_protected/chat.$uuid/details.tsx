@@ -1,15 +1,14 @@
-import type { ChannelParticipant, User } from '@hono-orpc/db/schema';
 import {
   useMutation,
   useQueryClient,
   useSuspenseQuery,
 } from '@tanstack/react-query';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
-import { ChevronLeft, LogOut, Trash2 } from 'lucide-react';
-import AddMembersToChannel from '@/components/add-members-to-channel';
-import ChannelMemberDetails from '@/components/channel-member-details';
-import ConfirmAction from '@/components/confirm-action';
+import { ChevronLeft } from 'lucide-react';
+import ChannelMembers from '@/components/channel-members';
+import ChannelSettings from '@/components/channel-settings';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { authClient } from '@/lib/auth';
 import { orpc } from '@/lib/orpc-client';
 
@@ -54,7 +53,7 @@ function RouteComponent() {
     ]);
   }
 
-  const { mutateAsync: leavChannel } = useMutation(
+  const { mutateAsync: leaveChannel } = useMutation(
     orpc.chat.leaveChannel.mutationOptions({
       onSuccess: async () => {
         await cleanupQueries();
@@ -73,59 +72,47 @@ function RouteComponent() {
   );
 
   return (
-    <div className="grid h-screen grid-rows-[1fr_auto] overflow-hidden">
-      <div className="overflow-y-auto">
-        <header className="sticky top-0 z-10 flex h-16 items-center gap-2 bg-background/20 px-4 backdrop-blur-md">
-          <Button asChild size="icon" variant="ghost">
-            <Link params={{ uuid }} to="/chat/$uuid">
-              <ChevronLeft />
-            </Link>
-          </Button>
-          <h1 className="min-w-0 truncate font-semibold text-lg">
-            #{channel.name}
-          </h1>
-        </header>
-        <div className="space-y-4 p-4">
-          <div className="flex items-center justify-between">
-            <h2 className="font-semibold text-lg">
-              {channel.participants?.length} Members
-            </h2>
-            {isOwner && <AddMembersToChannel channel={channel} />}
-          </div>
-          {channel.participants?.map((p) => (
-            <ChannelMemberDetails
-              channelOwnerId={channel.ownerId}
-              isOwner={isOwner}
-              key={p.userId}
-              member={p as ChannelParticipant & { user: User | null }}
-            />
-          ))}
-        </div>
-      </div>
+    <div>
+      <header className="sticky top-0 z-10 flex h-16 items-center gap-2 bg-background/20 px-4 backdrop-blur-md">
+        <Button asChild size="icon" variant="ghost">
+          <Link params={{ uuid }} to="/chat/$uuid">
+            <ChevronLeft />
+          </Link>
+        </Button>
+        <h1 className="min-w-0 truncate font-semibold text-lg">
+          #{channel.name}
+        </h1>
+      </header>
+
       <div className="p-4">
-        {isOwner ? (
-          <ConfirmAction
-            action={() => deleteChannel({ uuid })}
-            description="Are you sure you want to delete this channel?"
-            title="Delete Channel"
-          >
-            <Button className="w-full" variant="destructive">
-              <Trash2 />
-              Delete Channel
-            </Button>
-          </ConfirmAction>
-        ) : (
-          <ConfirmAction
-            action={() => leavChannel({ uuid })}
-            description="Are you sure you want to leave this channel?"
-            title="Leave Channel"
-          >
-            <Button className="w-full" variant="destructive">
-              <LogOut />
-              Leave Channel
-            </Button>
-          </ConfirmAction>
-        )}
+        <Tabs defaultValue="members">
+          <TabsList className="w-full">
+            <TabsTrigger value="members">Members</TabsTrigger>
+            <TabsTrigger value="stats">Stats</TabsTrigger>
+            {isOwner && <TabsTrigger value="settings">Settings</TabsTrigger>}
+          </TabsList>
+
+          <TabsContent value="members">
+            <ChannelMembers
+              channelUuid={uuid}
+              isOwner={isOwner}
+              onLeaveChannel={() => leaveChannel({ uuid })}
+            />
+          </TabsContent>
+
+          <TabsContent value="stats">
+            <div className="space-y-4">
+              <h2 className="font-semibold text-lg">Stats</h2>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="settings">
+            <ChannelSettings
+              channelUuid={uuid}
+              onDeleteChannel={() => deleteChannel({ uuid })}
+            />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
