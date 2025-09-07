@@ -6,7 +6,6 @@ import tools from "./tools";
 type GenerateResponseProps = {
   messages: (Message & { sender: User | null })[];
   model?: string;
-  extraTools?: Record<string, Tool>;
 };
 
 const SYSTEM_PROMPT = `
@@ -88,7 +87,6 @@ const toModelMessage = (
 export function generateResponse({
   messages,
   model,
-  extraTools,
 }: GenerateResponseProps) {
   const modelMessages = messages.map(toModelMessage);
 
@@ -102,14 +100,7 @@ export function generateResponse({
     model: openRouter(_model),
     system: SYSTEM_PROMPT,
     stopWhen: stepCountIs(10),
-    ...(enableTools
-      && {
-          tools: {
-            ...tools,
-            ...extraTools,
-          },
-        }
-      ),
+    ...(enableTools && { tools }),
     messages: modelMessages,
   });
 }

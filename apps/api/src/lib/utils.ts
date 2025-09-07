@@ -1,31 +1,9 @@
 import { generateResponse } from "@hono-orpc/ai";
 import db from "@hono-orpc/db";
 import type { ChannelSettings } from "@hono-orpc/db/schema";
-import { channelParticipant, message } from "@hono-orpc/db/tables";
-import { tool } from "ai";
+import { message } from "@hono-orpc/db/tables";
 import { desc, eq } from "drizzle-orm";
-import { z } from "zod/v4";
-import fs from "fs";
 
-const getExtraTools = (channelUuid: string) => ({
-  channelMembers: tool({
-    description: "Get the members of the channel",
-    inputSchema: z.object({}),
-    execute: async () => {
-      const members = await db.query.channelParticipant.findMany({
-        where: eq(channelParticipant.channelUuid, channelUuid),
-        with: {
-          user: true,
-        },
-      });
-      return members.map(m => ({
-        role: m.role,
-        name: m.user.name,
-        email: m.user.email
-      }));
-    },
-  })
-});
 
 export const generateAIResponse = async (
   channelUuid: string,
@@ -51,7 +29,6 @@ export const generateAIResponse = async (
     const response = await generateResponse({
       messages: invertedMessages,
       model: channelAISettings.model,
-      extraTools: getExtraTools(channelUuid),
     });
 
     // biome-ignore lint/suspicious/noConsole: DEBUG
