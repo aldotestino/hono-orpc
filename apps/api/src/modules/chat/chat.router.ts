@@ -1,15 +1,16 @@
+import { generateResponse } from '@hono-orpc/ai';
 import db from '@hono-orpc/db';
 import type { Message, User } from '@hono-orpc/db/schema';
 import { channel, channelParticipant, message } from '@hono-orpc/db/tables';
 import { EventPublisher, implement } from '@orpc/server';
 import { userIsChannelOwnerMiddleware } from 'apps/api/src/middlewares/user-is-channel-owner-middleware';
-import { and, eq } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 import { authMiddleware } from '../../middlewares/auth-middleware';
 import { userInChannelMiddleware } from '../../middlewares/user-in-channel-middleware';
 import chatContract from './chat.contract';
 
 const publisher = new EventPublisher<
-  Record<string, Message & { sender: User }>
+  Record<string, Message & { sender: User | null }>
 >();
 
 const chatRouter = implement(chatContract).$context<{ headers: Headers }>();
@@ -162,6 +163,62 @@ const sendMessageToChannel = chatRouter.sendMessageToChannel
       ...msg,
       sender: context.user as User,
     });
+
+    if (input.content.includes('@ai')) {
+      const lastMessages = await db.query.message.findMany({
+        where: eq(message.channelUuid, input.uuid),
+        orderBy: desc(message.createdAt),
+        limit: 10,
+        with: {
+          sender: true,
+        },
+      });
+
+      const invertedMessages = lastMessages.reverse();
+
+      let aiTextContent: string;
+
+      try {
+        const response = await generateResponse({
+          messages: invertedMessages,
+        });
+
+        const lastResponse = response.content.at(-1);
+
+        if (!lastResponse || lastResponse.type !== 'text') {
+          throw new Error('Last response is not a text');
+        }
+
+        aiTextContent = lastResponse.text;
+      } catch (error) {
+        // biome-ignore lint/suspicious/noConsole: debug ai response error
+        console.error(error);
+        aiTextContent = 'Failed to generate response';
+      }
+
+      const [aiMsg] = await db
+        .insert(message)
+        .values({
+          channelUuid: input.uuid,
+          content: aiTextContent,
+          senderId: 'ai',
+        })
+        .returning();
+
+      if (!aiMsg) {
+        throw errors.INTERNAL_SERVER_ERROR();
+      }
+
+      publisher.publish(input.uuid, {
+        ...aiMsg,
+        sender: {
+          id: 'ai',
+          name: 'ChatAI',
+          email: 'chatai@hono-orpc.com',
+          image: null,
+        },
+      });
+    }
 
     return msg;
   });

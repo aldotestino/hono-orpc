@@ -15,6 +15,7 @@
     "apps/api": {
       "name": "@hono-orpc/api",
       "dependencies": {
+        "@hono-orpc/ai": "workspace:*",
         "@hono-orpc/db": "workspace:*",
         "@orpc/openapi": "^1.8.1",
         "@orpc/server": "^1.8.1",

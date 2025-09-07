@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@hono-orpc/db": "workspace:*",
+    "@hono-orpc/ai": "workspace:*",
     "@orpc/openapi": "^1.8.1",
     "@orpc/server": "^1.8.1",
     "@orpc/zod": "^1.8.1",

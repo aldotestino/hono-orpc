@@ -68,7 +68,7 @@ const toModelMessage = (
   if (message.sender) {
     return {
       role: 'user',
-      content: `;Member: ${message.sender.name}\n${message.content}`,
+      content: `${message.sender.name}\n\n${message.content.replace('@ai', '')}`,
     };
   }
 
@@ -78,18 +78,28 @@ const toModelMessage = (
   };
 };
 
+/**
+ * Generate a response from the AI
+ * @param messages - The messages to generate a response from
+ * @param model - The model to use (optional, defaults to MODEL env var or 'openai/gpt-oss-120b:free')
+ * @param toolCalling - Whether to use tools (optional, defaults to TOOL_CALLING env var or false)
+ * @returns The response from the AI
+ */
 export function generateResponse({
   messages,
-  model = 'openai/gpt-oss-120b:free',
-  toolCalling = false,
+  model,
+  toolCalling,
 }: GenerateResponseProps) {
   const modelMessages = messages.map(toModelMessage);
 
+  const _model = model || process.env.MODEL || 'openai/gpt-oss-120b:free';
+  const _toolCalling = toolCalling || process.env.TOOL_CALLING === 'true';
+
   return generateText({
-    model: openRouter(model),
+    model: openRouter(_model),
     system: SYSTEM_PROMPT,
     stopWhen: stepCountIs(10),
-    ...(toolCalling ? { tools } : {}),
+    ...(_toolCalling ? { tools } : {}),
     messages: modelMessages,
   });
 }

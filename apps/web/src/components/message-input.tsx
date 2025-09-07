@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
+import { Loader, Send } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod/v4';
 import { Button } from '@/components/ui/button';
@@ -19,8 +20,11 @@ function MessageInput({ channelUuid }: { channelUuid: string }) {
     },
   });
 
-  const { mutateAsync: sendMessage } = useMutation(
+  const { mutateAsync: sendMessage, isPending } = useMutation(
     orpc.chat.sendMessageToChannel.mutationOptions({
+      onMutate: () => {
+        form.reset();
+      },
       onSuccess: () => {
         form.reset();
       },
@@ -41,12 +45,19 @@ function MessageInput({ channelUuid }: { channelUuid: string }) {
           render={({ field }) => (
             <FormItem className="flex-1">
               <FormControl>
-                <Input placeholder="Send a message" {...field} />
+                <Input
+                  placeholder="Send a message"
+                  {...field}
+                  disabled={isPending}
+                />
               </FormControl>
             </FormItem>
           )}
         />
-        <Button type="submit">Send</Button>
+        <Button disabled={isPending} type="submit">
+          {isPending ? <Loader className="animate-spin" /> : <Send />}
+          Send
+        </Button>
       </form>
     </Form>
   );
