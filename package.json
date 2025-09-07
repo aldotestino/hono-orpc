@@ -19,7 +19,8 @@
   },
   "workspaces": [
     "apps/*",
-    "packages/*"
+    "packages/*",
+    "playgrounds/*"
   ],
   "devDependencies": {
     "@biomejs/biome": "2.2.3",

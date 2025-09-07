@@ -1,0 +1,19 @@
+{
+  "name": "@hono-orpc/ai",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@openrouter/ai-sdk-provider": "^1.2.0",
+    "ai": "^5.0.34",
+    "zod": "^4.1.5"
+  }
+}
