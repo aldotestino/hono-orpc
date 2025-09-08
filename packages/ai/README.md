@@ -13,6 +13,40 @@ bun install
 ### Calculator
 Basic arithmetic operations (add, subtract, multiply, divide, power).
 
+### Date & Time Tools
+Get current date, time, and contextual information to help with time-sensitive queries and forecasts.
+
+#### getCurrentDateTime
+Get comprehensive current date and time information.
+
+**Parameters:**
+- `timezone` (string, optional): Specific timezone (e.g., "America/New_York", "Europe/London", "Asia/Tokyo"). Defaults to system timezone.
+- `format` (string, optional): Output format - "full" (all info), "date" (date only), or "time" (time only). Default: "full".
+
+**Returns:**
+- Current date and time in readable format
+- Day of week, month name, year
+- Timezone information and UTC offset
+- Week of year, day of year
+- Unix timestamp
+
+#### getRelativeDate
+Get date information for a specific number of days from today.
+
+**Parameters:**
+- `daysOffset` (number): Days from today (positive for future, negative for past, 0 for today)
+- `timezone` (string, optional): Specific timezone. Defaults to system timezone.
+
+**Returns:**
+- Date information for the target day
+- Relative description ("today", "tomorrow", "in 3 days", "2 days ago")
+- Day of week, month, year for the target date
+
+**Use Cases:**
+- Providing context for weather forecasts ("Today is Friday, so the 3-day forecast covers Friday through Sunday")
+- Understanding time-sensitive queries
+- Converting relative dates to absolute dates
+
 ### Weather Tools
 Get current weather and forecast information for any location worldwide using OpenWeatherMap API.
 
@@ -69,12 +103,12 @@ Get your free API key from [OpenWeatherMap](https://openweathermap.org/api).
 ```typescript
 import { generateResponse } from '@hono-orpc/ai';
 
-// The AI will automatically use weather tools when users ask about weather
+// The AI will automatically use appropriate tools based on user queries
 const response = await generateResponse({
   messages: [
     {
       id: '1',
-      content: 'What\'s the weather like in Tokyo?',
+      content: 'What\'s the weather forecast for Tokyo for the next 3 days?',
       senderId: 'user1',
       channelId: 'channel1',
       createdAt: new Date(),
@@ -82,6 +116,30 @@ const response = await generateResponse({
     }
   ]
 });
+
+// The AI will:
+// 1. Use getCurrentDateTime to understand what "today" is
+// 2. Use getRelativeDate to understand what "next 3 days" means
+// 3. Use getWeatherForecast to get Tokyo's forecast
+// 4. Provide a contextual response like:
+//    "Today is Friday, March 15th. Here's Tokyo's forecast for the next 3 days (Friday-Sunday)..."
 ```
+
+### Example Tool Interactions
+
+**Weather Forecast Query:**
+- User: "What's the 5-day forecast for London?"
+- AI uses: `getCurrentDateTime()` → `getWeatherForecast(location: "London", days: 5)`
+- Response includes context: "Today is Monday, so the 5-day forecast covers Monday through Friday..."
+
+**Date Context Query:**
+- User: "What day is it?"
+- AI uses: `getCurrentDateTime(format: "date")`
+- Response: "Today is Friday, March 15th, 2024"
+
+**Relative Date Query:**
+- User: "What's the weather going to be like tomorrow?"
+- AI uses: `getRelativeDate(daysOffset: 1)` → `getCurrentWeather(location: userLocation)`
+- Response: "Tomorrow is Saturday, March 16th. Here's the forecast..."
 
 This project was created using `bun init` in bun v1.2.21. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
