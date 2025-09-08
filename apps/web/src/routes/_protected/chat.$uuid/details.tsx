@@ -2,17 +2,17 @@ import {
   useMutation,
   useQueryClient,
   useSuspenseQuery,
-} from '@tanstack/react-query';
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
-import { ChevronLeft } from 'lucide-react';
-import ChannelMembers from '@/components/channel-members';
-import ChannelSettings from '@/components/channel-settings';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { authClient } from '@/lib/auth';
-import { orpc } from '@/lib/orpc-client';
+} from "@tanstack/react-query";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { ChevronLeft } from "lucide-react";
+import ChannelMembers from "@/components/channel-members";
+import ChannelSettings from "@/components/channel-settings";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { authClient } from "@/lib/auth";
+import { orpc } from "@/lib/orpc-client";
 
-export const Route = createFileRoute('/_protected/chat/$uuid/details')({
+export const Route = createFileRoute("/_protected/chat/$uuid/details")({
   component: RouteComponent,
   loader: async ({ context: { queryClient }, params }) =>
     queryClient.ensureQueryData(
@@ -59,7 +59,7 @@ function RouteComponent() {
     orpc.chat.channel.leaveChannel.mutationOptions({
       onSuccess: async () => {
         await cleanupQueries();
-        navigate({ to: '/chat' });
+        navigate({ to: "/chat" });
       },
     })
   );
@@ -68,7 +68,7 @@ function RouteComponent() {
     orpc.chat.channel.deleteChannel.mutationOptions({
       onSuccess: async () => {
         await cleanupQueries();
-        navigate({ to: '/chat' });
+        navigate({ to: "/chat" });
       },
     })
   );

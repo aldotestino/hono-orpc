@@ -1,12 +1,12 @@
-import type { Channel, ChannelParticipant, User } from '@hono-orpc/db/schema';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Loader, Plus } from 'lucide-react';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import z from 'zod';
-import AddUsers from '@/components/add-users';
-import { Button } from '@/components/ui/button';
+import type { Channel, ChannelParticipant, User } from "@hono-orpc/db/schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Loader, Plus } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import z from "zod";
+import AddUsers from "@/components/add-users";
+import { Button } from "@/components/ui/button";
 import {
   Drawer,
   DrawerContent,
@@ -15,7 +15,7 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from '@/components/ui/drawer';
+} from "@/components/ui/drawer";
 import {
   Form,
   FormControl,
@@ -23,8 +23,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { orpc } from '@/lib/orpc-client';
+} from "@/components/ui/form";
+import { orpc } from "@/lib/orpc-client";
 
 const addMembersSchema = z.object({
   members: z.array(z.string()).min(1),
@@ -35,7 +35,7 @@ function AddMembersToChannel({
 }: {
   channel: Channel & {
     participants:
-      | (Omit<ChannelParticipant, 'role'> & {
+      | (Omit<ChannelParticipant, "role"> & {
           user: User | null;
           role: unknown;
         })[]

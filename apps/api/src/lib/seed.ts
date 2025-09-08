@@ -1,11 +1,11 @@
-import db from '@hono-orpc/db';
-import type { User } from '@hono-orpc/db/schema';
-import { user } from '@hono-orpc/db/tables';
+import db from "@hono-orpc/db";
+import type { User } from "@hono-orpc/db/schema";
+import { user } from "@hono-orpc/db/tables";
 
 export const CHAT_AI_USER: User = {
-  id: 'ai',
-  email: 'chatai@hono-orpc.com',
-  name: 'ChatAI',
+  id: "ai",
+  email: "chatai@hono-orpc.com",
+  name: "ChatAI",
   image: null,
 };
 

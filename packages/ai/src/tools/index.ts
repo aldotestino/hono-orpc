@@ -1,6 +1,6 @@
-import { calculator } from './calculator';
-import { getCurrentWeather, getWeatherForecast } from './weather';
-import { getCurrentDateTime, getRelativeDate } from './datetime';
+import { calculator } from "./calculator";
+import { getCurrentDateTime, getRelativeDate } from "./datetime";
+import { getCurrentWeather, getWeatherForecast } from "./weather";
 
 export default {
   calculator,

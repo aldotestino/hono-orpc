@@ -2,17 +2,17 @@ import {
   experimental_streamedQuery,
   useQuery,
   useSuspenseQueries,
-} from '@tanstack/react-query';
-import { createFileRoute, Link } from '@tanstack/react-router';
-import { ChevronLeft, Menu } from 'lucide-react';
-import LiveMessagesStatusIndicator from '@/components/live-messages-status-indicator';
-import MessageBox from '@/components/message-box';
-import MessageInput from '@/components/message-input';
-import { Button } from '@/components/ui/button';
-import { useAutoScroll } from '@/lib/hooks/use-autoscroll';
-import { client, orpc } from '@/lib/orpc-client';
+} from "@tanstack/react-query";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ChevronLeft, Menu } from "lucide-react";
+import LiveMessagesStatusIndicator from "@/components/live-messages-status-indicator";
+import MessageBox from "@/components/message-box";
+import MessageInput from "@/components/message-input";
+import { Button } from "@/components/ui/button";
+import { useAutoScroll } from "@/lib/hooks/use-autoscroll";
+import { client, orpc } from "@/lib/orpc-client";
 
-export const Route = createFileRoute('/_protected/chat/$uuid/')({
+export const Route = createFileRoute("/_protected/chat/$uuid/")({
   loader: async ({ context: { queryClient }, params }) => {
     await Promise.all([
       queryClient.ensureQueryData(
@@ -88,7 +88,7 @@ function RouteComponent() {
           <div className="min-w-0">
             <h1 className="font-semibold text-lg">#{channel.name}</h1>
             <p className="truncate text-muted-foreground text-sm">
-              {channel.participants?.map((p) => p.user?.name).join(', ')}
+              {channel.participants?.map((p) => p.user?.name).join(", ")}
             </p>
           </div>
           <div className="flex items-center gap-2">

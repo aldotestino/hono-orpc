@@ -1,5 +1,5 @@
-import { ORPCError, os } from '@orpc/server';
-import { auth } from '../lib/auth';
+import { ORPCError, os } from "@orpc/server";
+import { auth } from "../lib/auth";
 
 export const authMiddleware = os
   .$context<{ headers: Headers }>()
@@ -7,7 +7,7 @@ export const authMiddleware = os
     const session = await auth.api.getSession({ headers: context.headers });
 
     if (!session) {
-      throw new ORPCError('UNAUTHORIZED');
+      throw new ORPCError("UNAUTHORIZED");
     }
 
     return next({

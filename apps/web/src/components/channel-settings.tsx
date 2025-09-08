@@ -4,7 +4,7 @@ import {
 } from "@hono-orpc/db/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Frown, Loader, Save, Trash2 } from "lucide-react";
+import { Loader, Save, Trash2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import ConfirmAction from "@/components/confirm-action";
 import { Button } from "@/components/ui/button";
@@ -16,11 +16,17 @@ import {
   FormItem,
   FormLabel,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { orpc } from "@/lib/orpc-client";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Input } from "@/components/ui/input";
 
 const ChannelSettingsForm = ({
   channelUuid,
@@ -41,7 +47,12 @@ const ChannelSettingsForm = ({
   const { mutateAsync: updateChannelSettings, isPending } = useMutation(
     orpc.chat.channel.setChannelSettings.mutationOptions({
       onSuccess: (data) => {
-        queryClient.setQueryData(orpc.chat.channel.getChannelSettings.queryKey({ input: { uuid: channelUuid } }), data);
+        queryClient.setQueryData(
+          orpc.chat.channel.getChannelSettings.queryKey({
+            input: { uuid: channelUuid },
+          }),
+          data
+        );
         form.reset(data);
       },
     })
@@ -49,7 +60,12 @@ const ChannelSettingsForm = ({
 
   return (
     <Form {...form}>
-      <form className="space-y-4" onSubmit={form.handleSubmit((data) => updateChannelSettings({ uuid: channelUuid, settings: data }))}>
+      <form
+        className="space-y-4"
+        onSubmit={form.handleSubmit((data) =>
+          updateChannelSettings({ uuid: channelUuid, settings: data })
+        )}
+      >
         <FormField
           control={form.control}
           name="ai.enabled"
@@ -80,15 +96,23 @@ const ChannelSettingsForm = ({
                 <FormItem>
                   <FormLabel>Model</FormLabel>
                   <FormControl>
-                    <Select value={field.value} onValueChange={field.onChange}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select a model" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="openrouter/sonoma-dusk-alpha">Sonoma Dusk Alpha</SelectItem>
-                        <SelectItem value="openrouter/sonoma-sky-alpha">Sonoma Sky Alpha</SelectItem>
-                        <SelectItem value="openai/gpt-oss-20b:free">OpenAI GPT-OSS 20B</SelectItem>
-                        <SelectItem value="openai/gpt-oss-120b:free">OpenAI GPT-OSS 120B</SelectItem>
+                        <SelectItem value="openrouter/sonoma-dusk-alpha">
+                          Sonoma Dusk Alpha
+                        </SelectItem>
+                        <SelectItem value="openrouter/sonoma-sky-alpha">
+                          Sonoma Sky Alpha
+                        </SelectItem>
+                        <SelectItem value="openai/gpt-oss-20b:free">
+                          OpenAI GPT-OSS 20B
+                        </SelectItem>
+                        <SelectItem value="openai/gpt-oss-120b:free">
+                          OpenAI GPT-OSS 120B
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </FormControl>
@@ -115,7 +139,11 @@ const ChannelSettingsForm = ({
             />
           </>
         )}
-        <Button className="w-full" disabled={isPending || !form.formState.isDirty} type="submit">
+        <Button
+          className="w-full"
+          disabled={isPending || !form.formState.isDirty}
+          type="submit"
+        >
           {isPending ? <Loader className="animate-spin" /> : <Save />}
           Save Settings
         </Button>

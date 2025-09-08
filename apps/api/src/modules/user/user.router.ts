@@ -1,10 +1,10 @@
-import db from '@hono-orpc/db';
-import { user } from '@hono-orpc/db/tables';
-import { implement } from '@orpc/server';
-import { and, eq, like, not, or } from 'drizzle-orm';
-import { CHAT_AI_USER } from '../../lib/seed';
-import { authMiddleware } from '../../middlewares/auth-middleware';
-import userContract from './user.contract';
+import db from "@hono-orpc/db";
+import { user } from "@hono-orpc/db/tables";
+import { implement } from "@orpc/server";
+import { and, eq, like, not, or } from "drizzle-orm";
+import { CHAT_AI_USER } from "../../lib/seed";
+import { authMiddleware } from "../../middlewares/auth-middleware";
+import userContract from "./user.contract";
 
 const userRouter = implement(userContract).$context<{ headers: Headers }>();
 

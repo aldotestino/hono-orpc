@@ -1,8 +1,8 @@
-import { channel } from '@hono-orpc/db/tables';
-import { ORPCError, os } from '@orpc/server';
-import type { User } from 'better-auth';
-import { eq } from 'drizzle-orm';
-import db from 'packages/db/src';
+import { channel } from "@hono-orpc/db/tables";
+import { ORPCError, os } from "@orpc/server";
+import type { User } from "better-auth";
+import { eq } from "drizzle-orm";
+import db from "packages/db/src";
 
 export const userIsChannelOwnerMiddleware = os
   .$context<{ headers: Headers; user: User }>()
@@ -12,11 +12,11 @@ export const userIsChannelOwnerMiddleware = os
     });
 
     if (!ch) {
-      throw new ORPCError('NOT_FOUND');
+      throw new ORPCError("NOT_FOUND");
     }
 
     if (ch.ownerId !== context.user.id) {
-      throw new ORPCError('FORBIDDEN');
+      throw new ORPCError("FORBIDDEN");
     }
 
     return next();

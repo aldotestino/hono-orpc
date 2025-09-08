@@ -1,11 +1,11 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { LogOut } from 'lucide-react';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import UserAvatar from '@/components/user-avatar';
-import { authClient } from '@/lib/auth';
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { LogOut } from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import UserAvatar from "@/components/user-avatar";
+import { authClient } from "@/lib/auth";
 
-export const Route = createFileRoute('/_protected/_bottom-navigation/profile')({
+export const Route = createFileRoute("/_protected/_bottom-navigation/profile")({
   component: RouteComponent,
 });
 
@@ -20,7 +20,7 @@ function RouteComponent() {
       toast.error(error.message);
       return;
     }
-    navigate({ to: '/', reloadDocument: true });
+    navigate({ to: "/", reloadDocument: true });
   }
 
   return (

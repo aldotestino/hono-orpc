@@ -1,10 +1,10 @@
-import type { ChannelParticipant, User } from '@hono-orpc/db/schema';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { format } from 'date-fns';
-import { ChevronRight, Trash2 } from 'lucide-react';
-import ConfirmAction from '@/components/confirm-action';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import type { ChannelParticipant, User } from "@hono-orpc/db/schema";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
+import { ChevronRight, Trash2 } from "lucide-react";
+import ConfirmAction from "@/components/confirm-action";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Drawer,
   DrawerContent,
@@ -13,11 +13,11 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from '@/components/ui/drawer';
-import UserAvatar from '@/components/user-avatar';
-import UserListItem from '@/components/user-list-item';
-import { authClient } from '@/lib/auth';
-import { orpc } from '@/lib/orpc-client';
+} from "@/components/ui/drawer";
+import UserAvatar from "@/components/user-avatar";
+import UserListItem from "@/components/user-list-item";
+import { authClient } from "@/lib/auth";
+import { orpc } from "@/lib/orpc-client";
 
 function ChannelMemberDetails({
   channelOwnerId,
@@ -71,11 +71,11 @@ function ChannelMemberDetails({
 
               <div className="grid grid-cols-[1fr_auto] gap-2 p-4">
                 <span className="text-muted-foreground">Joined at</span>
-                <span>{format(member.createdAt, 'MMM d, yyyy HH:mm')}</span>
+                <span>{format(member.createdAt, "MMM d, yyyy HH:mm")}</span>
                 <span className="text-muted-foreground">Role</span>
                 <span>
                   <Badge className="capitalize" variant="outline">
-                    {member.role as 'owner' | 'member'}
+                    {member.role as "owner" | "member"}
                   </Badge>
                 </span>
               </div>
