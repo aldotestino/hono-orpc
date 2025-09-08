@@ -1196,7 +1196,7 @@ layout: end
 <div>
 
 ## Resources
-- 📚 **Slides**: Available in `playground/presentation`
+- 📚 **Slides**: Available in `playgrounds/presentation`
 - 🏗️ **Source Code**: Full implementation in this repo
 - 📖 **Documentation**: Check each package's README
 - 🔗 **Links**: 
