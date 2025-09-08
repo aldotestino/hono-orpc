@@ -1,222 +1,69 @@
 import { tool } from 'ai';
 import { z } from 'zod/v4';
-
-// Weather data types
-interface WeatherData {
-  location: string;
-  country: string;
-  temperature: number;
-  feelsLike: number;
-  description: string;
-  humidity: number;
-  windSpeed: number;
-  windDirection: number;
-  pressure: number;
-  visibility: number;
-  cloudiness: number;
-  sunrise: string;
-  sunset: string;
-}
-
-interface ForecastItem {
-  datetime: string;
-  temperature: number;
-  feelsLike: number;
-  description: string;
-  humidity: number;
-  windSpeed: number;
-  precipitation: number;
-  cloudiness: number;
-}
-
-interface ForecastData {
-  location: string;
-  country: string;
-  forecast: ForecastItem[];
-}
+import { format } from 'date-fns';
 
 const API_BASE_URL = 'https://api.openweathermap.org/data/2.5';
 const GEO_API_URL = 'http://api.openweathermap.org/geo/1.0';
 
-interface GeocodingResult {
-  name: string;
-  lat: number;
-  lon: number;
-  country: string;
-  state?: string;
-}
+const getApiKey = () => process.env.WEATHER_SERVICE_API_KEY!;
 
-const getApiKey = (): string => {
-  const apiKey = process.env.WEATHER_SERVICE_API_KEY;
-  if (!apiKey) {
-    throw new Error('WEATHER_SERVICE_API_KEY environment variable is not set');
-  }
-  return apiKey;
-};
-
-const geocodeLocation = async (location: string): Promise<GeocodingResult> => {
-  const apiKey = getApiKey();
-  
-  try {
-    const response = await fetch(
-      `${GEO_API_URL}/direct?q=${encodeURIComponent(location)}&limit=1&appid=${apiKey}`
-    );
-    
-    if (!response.ok) {
-      if (response.status === 401) {
-        throw new Error('Invalid API key. Please check your WEATHER_SERVICE_API_KEY environment variable.');
-      }
-      throw new Error(`Geocoding service error: ${response.status} ${response.statusText}`);
-    }
-    
-    const data = await response.json();
-    
-    if (!data || data.length === 0) {
-      throw new Error(`Location "${location}" not found. Please check the spelling and try a more specific location (e.g., "London, GB" or "New York, US").`);
-    }
-    
-    const result = data[0];
-    return {
-      name: result.name,
-      lat: result.lat,
-      lon: result.lon,
-      country: result.country,
-      state: result.state
-    };
-  } catch (error) {
-    if (error instanceof Error) {
-      throw error;
-    }
-    throw new Error('Failed to geocode location. Please try again later.');
-  }
-};
-
-const formatTemperature = (temp: number): number => {
-  return Math.round(temp);
-};
-
-const formatTime = (timestamp: number): string => {
-  return new Date(timestamp * 1000).toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true
-  });
-};
-
-const formatDateTime = (timestamp: number): string => {
-  return new Date(timestamp * 1000).toLocaleString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true
-  });
+const geocodeLocation = async (location: string) => {
+  const response = await fetch(
+    `${GEO_API_URL}/direct?q=${encodeURIComponent(location)}&limit=1&appid=${getApiKey()}`
+  );
+  const data = await response.json();
+  return data[0];
 };
 
 export const getCurrentWeather = tool({
-  description: 'Get current weather information for a specific city or location. Provides temperature, conditions, humidity, wind, and other weather details.',
+  description: 'Get current weather information for a city.',
   inputSchema: z.object({
-    location: z.string().describe('The city name, optionally with country code (e.g., "London", "New York, US", "Paris, FR")'),
+    location: z.string().describe('City name (e.g., "London", "New York, US")'),
   }),
   execute: async ({ location }) => {
-    const apiKey = getApiKey();
+    const geo = await geocodeLocation(location);
+    const response = await fetch(
+      `${API_BASE_URL}/weather?lat=${geo.lat}&lon=${geo.lon}&appid=${getApiKey()}&units=metric`
+    );
+    const data = await response.json();
     
-    try {
-      // First, geocode the location to get coordinates
-      const geoData = await geocodeLocation(location);
-      
-      // Then fetch weather data using coordinates
-      const response = await fetch(
-        `${API_BASE_URL}/weather?lat=${geoData.lat}&lon=${geoData.lon}&appid=${apiKey}&units=metric`
-      );
-      
-      if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error('Invalid API key. Please check your WEATHER_SERVICE_API_KEY environment variable.');
-        }
-        throw new Error(`Weather service error: ${response.status} ${response.statusText}`);
-      }
-      
-      const data = await response.json();
-      
-      return {
-        location: geoData.name,
-        country: geoData.country,
-        temperature: formatTemperature(data.main.temp),
-        feelsLike: formatTemperature(data.main.feels_like),
-        description: data.weather[0].description,
-        humidity: data.main.humidity,
-        windSpeed: Math.round(data.wind.speed * 3.6), // Convert m/s to km/h
-        windDirection: data.wind.deg || 0,
-        pressure: data.main.pressure,
-        visibility: Math.round(data.visibility / 1000), // Convert m to km
-        cloudiness: data.clouds.all,
-        sunrise: formatTime(data.sys.sunrise),
-        sunset: formatTime(data.sys.sunset),
-      };
-    } catch (error) {
-      if (error instanceof Error) {
-        throw error;
-      }
-      throw new Error('Failed to fetch weather data. Please try again later.');
-    }
+    return {
+      location: geo.name,
+      temperature: Math.round(data.main.temp),
+      description: data.weather[0].description,
+      humidity: data.main.humidity,
+      windSpeed: Math.round(data.wind.speed * 3.6)
+    };
   },
 });
 
 export const getWeatherForecast = tool({
-  description: 'Get weather forecast for a specific city or location. Provides 5-day forecast with 3-hour intervals including temperature, conditions, and precipitation.',
+  description: 'Get weather forecast for a city.',
   inputSchema: z.object({
-    location: z.string().describe('The city name, optionally with country code (e.g., "London", "New York, US", "Paris, FR")'),
-    days: z.number().optional().default(3).describe('Number of forecast days to return (1-5, default: 3)'),
+    location: z.string().describe('City name (e.g., "London", "New York, US")'),
+    days: z.number().optional().default(3).describe('Number of forecast days (1-5, default: 3)'),
   }),
   execute: async ({ location, days = 3 }) => {
-    const apiKey = getApiKey();
+    const geo = await geocodeLocation(location);
+    const response = await fetch(
+      `${API_BASE_URL}/forecast?lat=${geo.lat}&lon=${geo.lon}&appid=${getApiKey()}&units=metric`
+    );
+    const data = await response.json();
     
-    try {
-      // First, geocode the location to get coordinates
-      const geoData = await geocodeLocation(location);
-      
-      // Then fetch forecast data using coordinates
-      const response = await fetch(
-        `${API_BASE_URL}/forecast?lat=${geoData.lat}&lon=${geoData.lon}&appid=${apiKey}&units=metric`
-      );
-      
-      if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error('Invalid API key. Please check your WEATHER_SERVICE_API_KEY environment variable.');
-        }
-        throw new Error(`Weather service error: ${response.status} ${response.statusText}`);
-      }
-      
-      const data = await response.json();
-      
-      // Filter forecast items based on requested days
-      const maxTimestamp = Date.now() + (days * 24 * 60 * 60 * 1000);
-      const filteredList = data.list.filter((item: any) => 
-        item.dt * 1000 <= maxTimestamp
-      );
-      
-      const forecast: ForecastItem[] = filteredList.map((item: any) => ({
-        datetime: formatDateTime(item.dt),
-        temperature: formatTemperature(item.main.temp),
-        feelsLike: formatTemperature(item.main.feels_like),
+    const maxTimestamp = Date.now() + (days * 24 * 60 * 60 * 1000);
+    const forecast = data.list
+      .filter((item: any) => item.dt * 1000 <= maxTimestamp)
+      .map((item: any) => ({
+        datetime: format(new Date(item.dt * 1000), 'EEE MMM d, h:mm a'),
+        temperature: Math.round(item.main.temp),
         description: item.weather[0].description,
         humidity: item.main.humidity,
-        windSpeed: Math.round(item.wind.speed * 3.6), // Convert m/s to km/h
-        precipitation: Math.round((item.rain?.['3h'] || 0) * 10) / 10, // mm
-        cloudiness: item.clouds.all,
+        windSpeed: Math.round(item.wind.speed * 3.6)
       }));
-      
-      return {
-        location: geoData.name,
-        country: geoData.country,
-        forecast,
-      };
-    } catch (error) {
-      if (error instanceof Error) {
-        throw error;
-      }
-      throw new Error('Failed to fetch weather forecast. Please try again later.');
-    }
+    
+    return {
+      location: geo.name,
+      forecast
+    };
   },
 });
