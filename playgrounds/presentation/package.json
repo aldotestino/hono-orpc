@@ -1,5 +1,5 @@
 {
-  "name": "typescript-fullstack-presentation",
+  "name": "@hono-orpc/presentation",
   "version": "1.0.0",
   "description": "Modern TypeScript Full-Stack Chat Application Presentation",
   "type": "module",
@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@slidev/cli": "^0.48.8",
-    "@slidev/theme-geist": "^0.3.0"
+    "slidev-theme-geist": "latest"
   },
   "devDependencies": {
     "playwright-chromium": "^1.40.0"
