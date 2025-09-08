@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern TypeScript Full-Stack Chat Application</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --geist-foreground: #000;
+            --geist-background: #fff;
+            --geist-gray: #666;
+            --geist-light-gray: #eaeaea;
+            --geist-lighter-gray: #f5f5f5;
+            --geist-cyan: #0070f3;
+            --geist-success: #0070f3;
+            --geist-warning: #f5a623;
+            --geist-error: #ee0000;
+            --geist-purple: #7928ca;
+            --geist-violet: #8b5cf6;
+            --geist-pink: #eb367f;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--geist-background);
+            color: var(--geist-foreground);
+            line-height: 1.6;
+            overflow: hidden;
+        }
+
+        .presentation {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        .slide {
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 4rem;
+            text-align: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .slide.active {
+            display: flex;
+        }
+
+        .slide h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, var(--geist-foreground) 0%, var(--geist-gray) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .slide h2 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--geist-foreground);
+        }
+
+        .slide h3 {
+            font-size: 1.8rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            color: var(--geist-cyan);
+        }
+
+        .slide p {
+            font-size: 1.2rem;
+            color: var(--geist-gray);
+            max-width: 800px;
+            margin: 0 auto 2rem;
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            color: var(--geist-gray);
+            font-weight: 400;
+            margin-bottom: 3rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 2rem auto;
+        }
+
+        .feature-card {
+            background: var(--geist-lighter-gray);
+            border: 1px solid var(--geist-light-gray);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: left;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.1);
+        }
+
+        .feature-card h4 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--geist-foreground);
+        }
+
+        .feature-card p {
+            font-size: 1rem;
+            color: var(--geist-gray);
+            margin: 0;
+        }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem auto;
+            max-width: 1000px;
+        }
+
+        .tech-badge {
+            background: var(--geist-cyan);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: transform 0.2s ease;
+        }
+
+        .tech-badge:hover {
+            transform: scale(1.05);
+        }
+
+        .tech-badge.backend { background: var(--geist-purple); }
+        .tech-badge.database { background: var(--geist-success); }
+        .tech-badge.frontend { background: var(--geist-violet); }
+        .tech-badge.ai { background: var(--geist-pink); }
+
+        .architecture-diagram {
+            background: var(--geist-lighter-gray);
+            border: 2px solid var(--geist-light-gray);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem auto;
+            max-width: 900px;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            text-align: left;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .code-block {
+            background: #1a1a1a;
+            color: #e1e1e1;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem auto;
+            max-width: 900px;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            text-align: left;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            overflow-x: auto;
+        }
+
+        .highlight {
+            color: var(--geist-cyan);
+            font-weight: 600;
+        }
+
+        .benefits-list {
+            text-align: left;
+            max-width: 800px;
+            margin: 2rem auto;
+        }
+
+        .benefits-list li {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: var(--geist-gray);
+            list-style: none;
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .benefits-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--geist-success);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            background: var(--geist-foreground);
+            color: var(--geist-background);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn:hover {
+            background: var(--geist-cyan);
+            transform: translateY(-2px);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slide-counter {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: var(--geist-lighter-gray);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: var(--geist-gray);
+            z-index: 1000;
+        }
+
+        .emoji {
+            font-size: 1.5em;
+            margin-right: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .slide {
+                padding: 2rem;
+            }
+            
+            .slide h1 {
+                font-size: 2.5rem;
+            }
+            
+            .slide h2 {
+                font-size: 2rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .tech-stack {
+                gap: 0.5rem;
+            }
+            
+            .tech-badge {
+                font-size: 0.9rem;
+                padding: 0.5rem 1rem;
+            }
+        }
+
+        /* Slide transitions */
+        .slide {
+            opacity: 0;
+            transform: translateX(100px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation">
+        <div class="slide-counter">
+            <span id="current-slide">1</span> / <span id="total-slides">15</span>
+        </div>
+
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <h1><span class="emoji">🚀</span>Modern TypeScript<br>Full-Stack Chat Application</h1>
+            <p class="subtitle">A showcase of the latest TypeScript ecosystem libraries and best practices</p>
+            <div class="tech-stack">
+                <span class="tech-badge">TypeScript</span>
+                <span class="tech-badge backend">Hono + oRPC</span>
+                <span class="tech-badge frontend">React 19</span>
+                <span class="tech-badge database">Drizzle ORM</span>
+                <span class="tech-badge ai">Vercel AI SDK</span>
+            </div>
+        </div>
+
+        <!-- Slide 2: Overview -->
+        <div class="slide">
+            <h2><span class="emoji">✨</span>Application Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h4>🔐 User Authentication</h4>
+                    <p>Social login (Google) and email/password authentication with Better-Auth</p>
+                </div>
+                <div class="feature-card">
+                    <h4>💬 Channel Management</h4>
+                    <p>Create, join, and manage chat channels with role-based permissions</p>
+                </div>
+                <div class="feature-card">
+                    <h4>📱 Real-time Messaging</h4>
+                    <p>Send and receive messages in real-time across channels with streaming</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🤖 AI Integration</h4>
+                    <p>Smart AI assistant with tool calling capabilities and multiple model support</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Monorepo Architecture -->
+        <div class="slide">
+            <h2><span class="emoji">🏗️</span>Monorepo Architecture</h2>
+            <div class="architecture-diagram">
+hono-orpc/
+├── apps/
+│   ├── api/          # Hono backend server
+│   └── web/          # React frontend application
+├── packages/
+│   ├── db/           # Drizzle ORM schema and utilities
+│   └── ai/           # AI tools and model integrations
+└── playgrounds/
+    └── ai/           # AI experimentation playground
+            </div>
+            <ul class="benefits-list">
+                <li><strong>Shared Type Safety:</strong> Types flow seamlessly between frontend and backend</li>
+                <li><strong>Code Reusability:</strong> Shared utilities, schemas, and contracts</li>
+                <li><strong>Unified Tooling:</strong> Single linting, formatting, and build configuration</li>
+                <li><strong>Developer Experience:</strong> Hot reload and type checking across the entire stack</li>
+            </ul>
+        </div>
+
+        <!-- Slide 4: Backend - Hono + oRPC -->
+        <div class="slide">
+            <h2><span class="emoji">⚡</span>Backend: Hono + oRPC</h2>
+            <p>Ultra-fast web framework with end-to-end type safety</p>
+            <div class="code-block">
+const channelContract = oc
+  .route({ tags: ["chat", "channel"] })
+  .errors({ UNAUTHORIZED: {} });
+
+const createChannel = channelContract
+  .route({
+    method: "POST",
+    path: "/chat/channel",
+    successStatus: 201,
+  })
+  .input(z.object({
+    name: z.string().min(1),
+    members: z.array(z.string()).min(1),
+  }))
+  .output(channelSchema);
+            </div>
+            <ul class="benefits-list">
+                <li>End-to-end type safety with contracts</li>
+                <li>Auto-generated OpenAPI documentation</li>
+                <li>Runtime validation with detailed error handling</li>
+                <li>Real-time streaming with Server-Sent Events</li>
+            </ul>
+        </div>
+
+        <!-- Slide 5: Real-time Streaming -->
+        <div class="slide">
+            <h2><span class="emoji">📡</span>Real-time Message Streaming</h2>
+            <p>Type-safe streaming with oRPC's built-in Server-Sent Events</p>
+            <div class="code-block">
+const streamChannelMessages = messageContract
+  .route({
+    method: "GET",
+    path: "/chat/channel/{uuid}/message/stream",
+  })
+  .input(z.object({ uuid: z.uuid() }))
+  .output(eventIterator(messageSchema));
+
+// Handler with generator function
+.handler(async function* ({ input, signal }) {
+  for await (const payload of publisher.subscribe(input.uuid, {
+    signal, // Abort signal for cleanup
+  })) {
+    yield payload; // Stream each message as it arrives
+  }
+});
+            </div>
+        </div>
+
+        <!-- Slide 6: Authentication -->
+        <div class="slide">
+            <h2><span class="emoji">🔐</span>Authentication with Better-Auth</h2>
+            <p>Modern, secure authentication with excellent TypeScript support</p>
+            <div class="code-block">
+export const auth = betterAuth({
+  database: drizzleAdapter(db, { provider: "pg" }),
+  emailAndPassword: { enabled: true },
+  socialProviders: {
+    google: {
+      prompt: "select_account",
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    },
+  },
+});
+            </div>
+            <ul class="benefits-list">
+                <li>Multiple auth methods: Email/password, OAuth, magic links</li>
+                <li>Framework agnostic with security-first approach</li>
+                <li>CSRF protection, secure sessions, and rate limiting</li>
+                <li>TypeScript native with excellent developer experience</li>
+            </ul>
+        </div>
+
+        <!-- Slide 7: Database - Drizzle ORM -->
+        <div class="slide">
+            <h2><span class="emoji">🗄️</span>Database with Drizzle ORM</h2>
+            <p>Best TypeScript experience for database operations with SQL-like API</p>
+            <div class="code-block">
+export const channel = pgTable("channel", {
+  uuid: uuid().notNull().primaryKey().defaultRandom(),
+  name: text().notNull(),
+  settings: json()
+    .notNull()
+    .default(channelSettingsSchema.parse({ ai: {} }))
+    .$type&lt;ChannelSettings&gt;(),
+  ownerId: text()
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  createdAt: timestamp({ mode: "string", withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+// Auto-generate Zod schemas
+export const channelSchema = createSelectSchema(channel);
+            </div>
+        </div>
+
+        <!-- Slide 8: Frontend - React Stack -->
+        <div class="slide">
+            <h2><span class="emoji">🎨</span>Frontend: Modern React Stack</h2>
+            <p>Cutting-edge React patterns and tools for 2024</p>
+            <div class="tech-stack">
+                <span class="tech-badge frontend">React 19</span>
+                <span class="tech-badge frontend">TanStack Router</span>
+                <span class="tech-badge frontend">TanStack Query</span>
+                <span class="tech-badge frontend">Tailwind CSS 4</span>
+                <span class="tech-badge frontend">Shadcn/ui</span>
+                <span class="tech-badge frontend">Vite</span>
+            </div>
+            <ul class="benefits-list">
+                <li><strong>React 19:</strong> Latest concurrent features and improved Suspense</li>
+                <li><strong>TanStack Router:</strong> File-based, type-safe routing with nested layouts</li>
+                <li><strong>TanStack Query:</strong> Powerful data fetching and state synchronization</li>
+                <li><strong>Tailwind CSS 4:</strong> Utility-first styling with CSS variables</li>
+                <li><strong>Shadcn/ui:</strong> High-quality, accessible component library</li>
+            </ul>
+        </div>
+
+        <!-- Slide 9: Type-Safe Routing -->
+        <div class="slide">
+            <h2><span class="emoji">🛣️</span>Type-Safe File-Based Routing</h2>
+            <p>TanStack Router with full TypeScript integration and route guards</p>
+            <div class="code-block">
+// Route guards with authentication
+export const Route = createFileRoute("/_protected")({
+  beforeLoad: ({ context: { auth } }) => {
+    if (!auth.data) {
+      throw redirect({ to: "/" });
+    }
+  },
+  component: Outlet,
+});
+
+// Route loaders with prefetching
+export const Route = createFileRoute("/_protected/chat/$uuid/")({
+  loader: async ({ context: { queryClient }, params }) => {
+    await Promise.all([
+      queryClient.ensureQueryData(
+        orpc.chat.channel.getChannel.queryOptions({
+          input: { uuid: params.uuid },
+        })
+      ),
+    ]);
+  },
+});
+            </div>
+        </div>
+
+        <!-- Slide 10: TanStack Query Integration -->
+        <div class="slide">
+            <h2><span class="emoji">🔄</span>TanStack Query + oRPC Integration</h2>
+            <p>Automatic query options generation with type safety</p>
+            <div class="code-block">
+// Auto-generated query options from oRPC contracts
+const link = new OpenAPILink(contract, {
+  url: `${window.location.origin}/api/rpc`,
+  eventIteratorKeepAliveEnabled: true,
+});
+
+export const client = createORPCClient(link);
+export const orpc = createTanstackQueryUtils(client);
+
+// Suspense queries with type safety
+const [{ data: channel }, { data: messages }] = useSuspenseQueries({
+  queries: [
+    orpc.chat.channel.getChannel.queryOptions({ input: { uuid } }),
+    orpc.chat.message.getChannelMessages.queryOptions({ input: { uuid } }),
+  ],
+});
+            </div>
+        </div>
+
+        <!-- Slide 11: AI Integration -->
+        <div class="slide">
+            <h2><span class="emoji">🤖</span>AI Integration with Vercel AI SDK</h2>
+            <p>Modern AI application framework with multi-model support</p>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h4>🔗 Provider Agnostic</h4>
+                    <p>Support for OpenAI, Anthropic, Google, OpenRouter, and 50+ providers</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🛠️ Tool Calling</h4>
+                    <p>Type-safe function calling with automatic schema generation</p>
+                </div>
+                <div class="feature-card">
+                    <h4>📡 Streaming Support</h4>
+                    <p>Real-time token streaming for responsive UIs</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🔒 Type Safety</h4>
+                    <p>Full TypeScript integration with Zod schema validation</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: AI Tool System -->
+        <div class="slide">
+            <h2><span class="emoji">🛠️</span>AI Tool System</h2>
+            <p>Type-safe function calling with automatic schema generation</p>
+            <div class="code-block">
+export const getCurrentWeather = tool({
+  description: "Get current weather information for a city.",
+  inputSchema: z.object({
+    location: z.string().describe('City name (e.g., "London")'),
+  }),
+  execute: async ({ location }) => {
+    const geo = await geocodeLocation(location);
+    const response = await fetch(
+      `${API_URL}/weather?lat=${geo.lat}&lon=${geo.lon}`
+    );
+    const data = await response.json();
+
+    return {
+      location: geo.name,
+      temperature: Math.round(data.main.temp),
+      description: data.weather[0].description,
+    };
+  },
+});
+            </div>
+        </div>
+
+        <!-- Slide 13: Key Achievements -->
+        <div class="slide">
+            <h2><span class="emoji">🚀</span>What We've Achieved</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h4>🔒 End-to-End Type Safety</h4>
+                    <p>Zero type gaps from database schema to UI components with compile-time error detection</p>
+                </div>
+                <div class="feature-card">
+                    <h4>⚡ Developer Experience Excellence</h4>
+                    <p>Sub-second hot reload, intelligent IntelliSense, and comprehensive debugging tools</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🏗️ Modern Architecture Patterns</h4>
+                    <p>File-based routing, real-time streaming, and AI-first development capabilities</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🌐 Production Readiness</h4>
+                    <p>Robust auth systems, scalable monorepo architecture, and optimized performance</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: The Multiplicative Effect -->
+        <div class="slide">
+            <h2><span class="emoji">🌟</span>The TypeScript Ecosystem Advantage</h2>
+            <p>These technologies create a <span class="highlight">multiplicative effect</span> where each tool enhances the others</p>
+            <ul class="benefits-list">
+                <li><strong>oRPC</strong> contracts become <strong>TanStack Query</strong> hooks automatically</li>
+                <li><strong>Drizzle</strong> schemas generate <strong>Zod</strong> validators seamlessly</li>
+                <li><strong>Vercel AI SDK</strong> tools integrate with type-safe <strong>API endpoints</strong></li>
+                <li><strong>TanStack Router</strong> provides <strong>compile-time route validation</strong></li>
+            </ul>
+            <p style="margin-top: 2rem; font-style: italic;">This isn't just about individual library quality—it's about how they work together to create something greater than the sum of their parts.</p>
+        </div>
+
+        <!-- Slide 15: Thank You -->
+        <div class="slide">
+            <h1><span class="emoji">🙏</span>Thank You</h1>
+            <p class="subtitle">Questions & Discussion</p>
+            <div class="tech-stack">
+                <span class="tech-badge">Modern TypeScript</span>
+                <span class="tech-badge backend">Full-Stack</span>
+                <span class="tech-badge ai">AI-Powered</span>
+                <span class="tech-badge frontend">Type-Safe</span>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button class="nav-btn" id="prev-btn" onclick="previousSlide()">← Previous</button>
+            <button class="nav-btn" id="next-btn" onclick="nextSlide()">Next →</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('total-slides').textContent = totalSlides;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+            
+            document.getElementById('current-slide').textContent = currentSlide + 1;
+            
+            // Update navigation buttons
+            document.getElementById('prev-btn').disabled = currentSlide === 0;
+            document.getElementById('next-btn').disabled = currentSlide === totalSlides - 1;
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                showSlide(currentSlide + 1);
+            }
+        }
+
+        function previousSlide() {
+            if (currentSlide > 0) {
+                showSlide(currentSlide - 1);
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                previousSlide();
+            } else if (e.key === 'Home') {
+                e.preventDefault();
+                showSlide(0);
+            } else if (e.key === 'End') {
+                e.preventDefault();
+                showSlide(totalSlides - 1);
+            }
+        });
+
+        // Initialize
+        showSlide(0);
+
+        // Touch/swipe support for mobile
+        let startX = 0;
+        let startY = 0;
+
+        document.addEventListener('touchstart', function(e) {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+        });
+
+        document.addEventListener('touchend', function(e) {
+            if (!startX || !startY) return;
+
+            let endX = e.changedTouches[0].clientX;
+            let endY = e.changedTouches[0].clientY;
+
+            let deltaX = startX - endX;
+            let deltaY = startY - endY;
+
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                if (deltaX > 50) {
+                    nextSlide();
+                } else if (deltaX < -50) {
+                    previousSlide();
+                }
+            }
+
+            startX = 0;
+            startY = 0;
+        });
+    </script>
+</body>
+</html>
