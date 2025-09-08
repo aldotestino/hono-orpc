@@ -1,27 +1,27 @@
-import { tool } from 'ai';
-import { z } from 'zod/v4';
+import { tool } from "ai";
+import { z } from "zod/v4";
 
 export const calculator = tool({
-  description: 'A calculator tool',
+  description: "A calculator tool",
   inputSchema: z.object({
     a: z.number(),
     b: z.number(),
-    operation: z.enum(['add', 'subtract', 'multiply', 'divide', 'power']),
+    operation: z.enum(["add", "subtract", "multiply", "divide", "power"]),
   }),
   execute: ({ a, b, operation }) => {
     switch (operation) {
-      case 'add':
+      case "add":
         return a + b;
-      case 'subtract':
+      case "subtract":
         return a - b;
-      case 'multiply':
+      case "multiply":
         return a * b;
-      case 'divide':
+      case "divide":
         return a / b;
-      case 'power':
+      case "power":
         return a ** b;
       default:
-        throw new Error('Invalid operation');
+        throw new Error("Invalid operation");
     }
   },
 });

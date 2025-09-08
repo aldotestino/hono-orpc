@@ -1,19 +1,19 @@
-import { createRouter, RouterProvider } from '@tanstack/react-router';
-import { Loader } from 'lucide-react';
-import { StrictMode } from 'react';
-import ReactDOM from 'react-dom/client';
+import { createRouter, RouterProvider } from "@tanstack/react-router";
+import { Loader } from "lucide-react";
+import { StrictMode } from "react";
+import ReactDOM from "react-dom/client";
 import {
   Provider as TanStackQueryProvider,
   getContext as tanstackQueryContext,
-} from './integrations/tanstack-query/root-provider.tsx';
+} from "./integrations/tanstack-query/root-provider.tsx";
 
 // Import the generated route tree
-import { routeTree } from './routeTree.gen';
+import { routeTree } from "./routeTree.gen";
 
-import './styles.css';
-import { authClient } from '@/lib/auth.ts';
-import { ThemeProvider } from '@/providers/theme-provider.tsx';
-import reportWebVitals from './reportWebVitals.ts';
+import "./styles.css";
+import { authClient } from "@/lib/auth.ts";
+import { ThemeProvider } from "@/providers/theme-provider.tsx";
+import reportWebVitals from "./reportWebVitals.ts";
 
 // Create a new router instance
 
@@ -25,14 +25,14 @@ const router = createRouter({
     // biome-ignore lint/style/noNonNullAssertion: will be defined in RouterProviderWithAuth
     auth: undefined!,
   },
-  defaultPreload: 'intent',
+  defaultPreload: "intent",
   scrollRestoration: true,
   defaultStructuralSharing: true,
   defaultPreloadStaleTime: 0,
 });
 
 // Register the router instance for type safety
-declare module '@tanstack/react-router' {
+declare module "@tanstack/react-router" {
   // biome-ignore lint/nursery/useConsistentTypeDefinitions: necessary interface
   interface Register {
     router: typeof router;
@@ -54,7 +54,7 @@ function RouterProviderWithAuth() {
 }
 
 // Render the app
-const rootElement = document.getElementById('app');
+const rootElement = document.getElementById("app");
 if (rootElement && !rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from "react";
 
 // Constants for scroll behavior
 const SCROLL_THRESHOLD = 100;
@@ -29,7 +29,7 @@ export function useAutoScroll(messagesCount: number) {
   const scrollToBottom = useCallback(() => {
     const container = chatContainerRef.current;
     if (container && !isUserScrollingRef.current) {
-      container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+      container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
     }
   }, []);
 

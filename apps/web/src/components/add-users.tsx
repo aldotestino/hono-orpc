@@ -1,14 +1,14 @@
-import type { User } from '@hono-orpc/db/schema';
-import { useQuery } from '@tanstack/react-query';
-import { Loader, Search, X } from 'lucide-react';
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
-import UserListItem from '@/components/user-list-item';
-import { useStateWithDebounce } from '@/lib/hooks/use-debounce';
-import { orpc } from '@/lib/orpc-client';
+import type { User } from "@hono-orpc/db/schema";
+import { useQuery } from "@tanstack/react-query";
+import { Loader, Search, X } from "lucide-react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import UserListItem from "@/components/user-list-item";
+import { useStateWithDebounce } from "@/lib/hooks/use-debounce";
+import { orpc } from "@/lib/orpc-client";
 
 function AddUsers({
   initialUsers = [],
@@ -21,14 +21,14 @@ function AddUsers({
     debouncedValue,
     value,
     onChange: onChangeDebounced,
-  } = useStateWithDebounce('');
+  } = useStateWithDebounce("");
 
   const [users, setUsers] = useState<User[]>([]);
 
   const { data: foundUsers, isLoading } = useQuery(
     orpc.user.searchUser.queryOptions({
       input: { query: debouncedValue },
-      enabled: debouncedValue !== '',
+      enabled: debouncedValue !== "",
     })
   );
 

@@ -1,6 +1,6 @@
 import type { Message, User } from "@hono-orpc/db/schema";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
-import { generateText, type ModelMessage, stepCountIs, type Tool } from "ai";
+import { generateText, type ModelMessage, stepCountIs } from "ai";
 import tools from "./tools";
 
 type GenerateResponseProps = {
@@ -58,7 +58,7 @@ Output only the chat reply content (no metadata).
 `;
 
 const openRouter = createOpenRouter({
-  apiKey: process.env.OPEN_ROUTER_API_KEY,
+  apiKey: process.env.OPENROUTER_API_KEY,
 });
 
 const toModelMessage = (
@@ -84,10 +84,7 @@ const toModelMessage = (
  * @returns The response from the AI
  */
 
-export function generateResponse({
-  messages,
-  model,
-}: GenerateResponseProps) {
+export function generateResponse({ messages, model }: GenerateResponseProps) {
   const modelMessages = messages.map(toModelMessage);
 
   const _model = model || "openai/gpt-oss-120b:free";

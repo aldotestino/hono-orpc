@@ -4,8 +4,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "lint": "ultracite lint",
-    "format": "ultracite format",
+    "lint": "ultracite check",
+    "format": "ultracite fix",
     "api": "bun --cwd apps/api dev",
     "web": "bun --cwd apps/web dev",
     "cli": "bun --cwd apps/cli start",

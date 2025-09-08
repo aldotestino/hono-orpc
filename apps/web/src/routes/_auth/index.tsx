@@ -1,9 +1,9 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-import GoogleIcon from '@/components/google-icon';
-import { Button } from '@/components/ui/button';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import GoogleIcon from "@/components/google-icon";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -11,7 +11,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+} from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -19,12 +19,12 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { authClient } from '@/lib/auth';
-import { type UserSignin, userSigninSchema } from '@/lib/schema/user';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { authClient } from "@/lib/auth";
+import { type UserSignin, userSigninSchema } from "@/lib/schema/user";
 
-export const Route = createFileRoute('/_auth/')({
+export const Route = createFileRoute("/_auth/")({
   component: RouteComponent,
 });
 
@@ -32,8 +32,8 @@ function RouteComponent() {
   const form = useForm({
     resolver: zodResolver(userSigninSchema),
     defaultValues: {
-      email: '',
-      password: '',
+      email: "",
+      password: "",
     },
   });
 
@@ -45,7 +45,7 @@ function RouteComponent() {
         toast.error(error.message);
       },
       onSuccess: () => {
-        navigate({ to: '/chat', reloadDocument: true });
+        navigate({ to: "/chat", reloadDocument: true });
       },
     });
   }
@@ -104,7 +104,7 @@ function RouteComponent() {
 
         <Button
           className="w-full"
-          onClick={() => authClient.signIn.social({ provider: 'google' })}
+          onClick={() => authClient.signIn.social({ provider: "google" })}
           type="button"
           variant="outline"
         >
@@ -115,7 +115,7 @@ function RouteComponent() {
 
       <CardFooter className="flex flex-col gap-2">
         <p className="text-muted-foreground text-sm">
-          Don&apos;t have an account?{' '}
+          Don&apos;t have an account?{" "}
           <Link className="text-primary hover:underline" to="/sign-up">
             Sign up
           </Link>

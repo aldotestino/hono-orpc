@@ -4,7 +4,6 @@ import type { ChannelSettings } from "@hono-orpc/db/schema";
 import { message } from "@hono-orpc/db/tables";
 import { desc, eq } from "drizzle-orm";
 
-
 export const generateAIResponse = async (
   channelUuid: string,
   channelAISettings: ChannelSettings["ai"]

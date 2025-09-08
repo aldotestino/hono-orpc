@@ -1,8 +1,8 @@
-import { ORPCError, os } from '@orpc/server';
-import type { User } from 'better-auth';
-import { and, eq } from 'drizzle-orm';
-import db from 'packages/db/src';
-import { channelParticipant } from 'packages/db/src/tables';
+import { ORPCError, os } from "@orpc/server";
+import type { User } from "better-auth";
+import { and, eq } from "drizzle-orm";
+import db from "packages/db/src";
+import { channelParticipant } from "packages/db/src/tables";
 
 export const userInChannelMiddleware = os
   .$context<{ headers: Headers; user: User }>()
@@ -18,7 +18,7 @@ export const userInChannelMiddleware = os
       );
 
     if (!userInChannel) {
-      throw new ORPCError('FORBIDDEN');
+      throw new ORPCError("FORBIDDEN");
     }
 
     return next();

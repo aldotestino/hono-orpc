@@ -1,14 +1,14 @@
-import type { User } from '@hono-orpc/db/schema';
-import UserAvatar from '@/components/user-avatar';
+import type { User } from "@hono-orpc/db/schema";
+import UserAvatar from "@/components/user-avatar";
 
 function UserListItem({
   user,
-  orientation = 'horizontal',
+  orientation = "horizontal",
 }: {
   user: User | null;
-  orientation?: 'horizontal' | 'vertical';
+  orientation?: "horizontal" | "vertical";
 }) {
-  if (orientation === 'vertical') {
+  if (orientation === "vertical") {
     return (
       <div className="flex flex-col items-center gap-1">
         <UserAvatar user={user} />

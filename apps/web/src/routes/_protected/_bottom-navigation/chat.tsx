@@ -1,8 +1,8 @@
-import { useSuspenseQuery } from '@tanstack/react-query';
-import { createFileRoute, Link } from '@tanstack/react-router';
-import { orpc } from '@/lib/orpc-client';
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { orpc } from "@/lib/orpc-client";
 
-export const Route = createFileRoute('/_protected/_bottom-navigation/chat')({
+export const Route = createFileRoute("/_protected/_bottom-navigation/chat")({
   loader: ({ context: { queryClient } }) =>
     queryClient.ensureQueryData(orpc.chat.channel.getChannels.queryOptions()),
   component: RouteComponent,

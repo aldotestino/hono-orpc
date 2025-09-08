@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from "zod/v4";
 
 const MIN_NAME_LENGTH = 3;
 const MIN_PASSWORD_LENGTH = 8;

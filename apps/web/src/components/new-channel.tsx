@@ -1,11 +1,11 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Loader, Plus } from 'lucide-react';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod/v4';
-import AddUsers from '@/components/add-users';
-import { Button } from '@/components/ui/button';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Loader, Plus } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod/v4";
+import AddUsers from "@/components/add-users";
+import { Button } from "@/components/ui/button";
 import {
   Drawer,
   DrawerContent,
@@ -14,7 +14,7 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from '@/components/ui/drawer';
+} from "@/components/ui/drawer";
 import {
   Form,
   FormControl,
@@ -22,9 +22,9 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { orpc } from '@/lib/orpc-client';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { orpc } from "@/lib/orpc-client";
 
 const channelSchema = z.object({
   name: z.string().min(1),
@@ -37,7 +37,7 @@ function NewChannel() {
   const form = useForm({
     resolver: zodResolver(channelSchema),
     defaultValues: {
-      name: '',
+      name: "",
       members: [],
     },
   });

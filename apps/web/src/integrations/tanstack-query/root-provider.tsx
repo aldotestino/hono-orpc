@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const QUERY_STALE_TIME = 300_000; // 5 minutes
 
@@ -11,8 +11,8 @@ export function getContext() {
           // always refetch messages
           const flatQueryKeys = query.queryKey.flat();
           if (
-            flatQueryKeys.includes('streamChannelMessages') ||
-            flatQueryKeys.includes('getChannelMessages')
+            flatQueryKeys.includes("streamChannelMessages") ||
+            flatQueryKeys.includes("getChannelMessages")
           ) {
             return 0;
           }
