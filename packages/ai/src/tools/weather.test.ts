@@ -9,6 +9,15 @@ const mockFetch = mock();
 global.fetch = mockFetch;
 
 test('getCurrentWeather - successful response', async () => {
+  const mockGeoData = [
+    {
+      name: 'London',
+      lat: 51.5074,
+      lon: -0.1278,
+      country: 'GB'
+    }
+  ];
+
   const mockWeatherData = {
     name: 'London',
     sys: { country: 'GB', sunrise: 1609459200, sunset: 1609495200 },
@@ -24,6 +33,13 @@ test('getCurrentWeather - successful response', async () => {
     visibility: 10000
   };
 
+  // Mock geocoding API call first
+  mockFetch.mockResolvedValueOnce({
+    ok: true,
+    json: () => Promise.resolve(mockGeoData)
+  });
+
+  // Mock weather API call second
   mockFetch.mockResolvedValueOnce({
     ok: true,
     json: () => Promise.resolve(mockWeatherData)
@@ -49,17 +65,26 @@ test('getCurrentWeather - successful response', async () => {
 });
 
 test('getCurrentWeather - location not found', async () => {
+  // Mock geocoding API returning empty array (no results)
   mockFetch.mockResolvedValueOnce({
-    ok: false,
-    status: 404,
-    statusText: 'Not Found'
+    ok: true,
+    json: () => Promise.resolve([])
   });
 
   await expect(getCurrentWeather.execute({ location: 'InvalidCity' }))
-    .rejects.toThrow('Location "InvalidCity" not found');
+    .rejects.toThrow('Location "InvalidCity" not found. Please check the spelling and try a more specific location');
 });
 
 test('getWeatherForecast - successful response', async () => {
+  const mockGeoData = [
+    {
+      name: 'Paris',
+      lat: 48.8566,
+      lon: 2.3522,
+      country: 'FR'
+    }
+  ];
+
   const mockForecastData = {
     city: { name: 'Paris', country: 'FR' },
     list: [
@@ -82,6 +107,13 @@ test('getWeatherForecast - successful response', async () => {
     ]
   };
 
+  // Mock geocoding API call first
+  mockFetch.mockResolvedValueOnce({
+    ok: true,
+    json: () => Promise.resolve(mockGeoData)
+  });
+
+  // Mock forecast API call second
   mockFetch.mockResolvedValueOnce({
     ok: true,
     json: () => Promise.resolve(mockForecastData)
@@ -113,4 +145,16 @@ test('getCurrentWeather - missing API key', async () => {
 
   // Restore the API key
   process.env.WEATHER_SERVICE_API_KEY = originalApiKey;
+});
+
+test('geocoding API error handling', async () => {
+  // Mock geocoding API error
+  mockFetch.mockResolvedValueOnce({
+    ok: false,
+    status: 401,
+    statusText: 'Unauthorized'
+  });
+
+  await expect(getCurrentWeather.execute({ location: 'London' }))
+    .rejects.toThrow('Invalid API key');
 });

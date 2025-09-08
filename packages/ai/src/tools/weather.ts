@@ -36,6 +36,15 @@ interface ForecastData {
 }
 
 const API_BASE_URL = 'https://api.openweathermap.org/data/2.5';
+const GEO_API_URL = 'http://api.openweathermap.org/geo/1.0';
+
+interface GeocodingResult {
+  name: string;
+  lat: number;
+  lon: number;
+  country: string;
+  state?: string;
+}
 
 const getApiKey = (): string => {
   const apiKey = process.env.WEATHER_SERVICE_API_KEY;
@@ -43,6 +52,43 @@ const getApiKey = (): string => {
     throw new Error('WEATHER_SERVICE_API_KEY environment variable is not set');
   }
   return apiKey;
+};
+
+const geocodeLocation = async (location: string): Promise<GeocodingResult> => {
+  const apiKey = getApiKey();
+  
+  try {
+    const response = await fetch(
+      `${GEO_API_URL}/direct?q=${encodeURIComponent(location)}&limit=1&appid=${apiKey}`
+    );
+    
+    if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error('Invalid API key. Please check your WEATHER_SERVICE_API_KEY environment variable.');
+      }
+      throw new Error(`Geocoding service error: ${response.status} ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    
+    if (!data || data.length === 0) {
+      throw new Error(`Location "${location}" not found. Please check the spelling and try a more specific location (e.g., "London, GB" or "New York, US").`);
+    }
+    
+    const result = data[0];
+    return {
+      name: result.name,
+      lat: result.lat,
+      lon: result.lon,
+      country: result.country,
+      state: result.state
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error('Failed to geocode location. Please try again later.');
+  }
 };
 
 const formatTemperature = (temp: number): number => {
@@ -76,14 +122,15 @@ export const getCurrentWeather = tool({
     const apiKey = getApiKey();
     
     try {
+      // First, geocode the location to get coordinates
+      const geoData = await geocodeLocation(location);
+      
+      // Then fetch weather data using coordinates
       const response = await fetch(
-        `${API_BASE_URL}/weather?q=${encodeURIComponent(location)}&appid=${apiKey}&units=metric`
+        `${API_BASE_URL}/weather?lat=${geoData.lat}&lon=${geoData.lon}&appid=${apiKey}&units=metric`
       );
       
       if (!response.ok) {
-        if (response.status === 404) {
-          throw new Error(`Location "${location}" not found. Please check the spelling and try again.`);
-        }
         if (response.status === 401) {
           throw new Error('Invalid API key. Please check your WEATHER_SERVICE_API_KEY environment variable.');
         }
@@ -93,8 +140,8 @@ export const getCurrentWeather = tool({
       const data = await response.json();
       
       return {
-        location: data.name,
-        country: data.sys.country,
+        location: geoData.name,
+        country: geoData.country,
         temperature: formatTemperature(data.main.temp),
         feelsLike: formatTemperature(data.main.feels_like),
         description: data.weather[0].description,
@@ -126,14 +173,15 @@ export const getWeatherForecast = tool({
     const apiKey = getApiKey();
     
     try {
+      // First, geocode the location to get coordinates
+      const geoData = await geocodeLocation(location);
+      
+      // Then fetch forecast data using coordinates
       const response = await fetch(
-        `${API_BASE_URL}/forecast?q=${encodeURIComponent(location)}&appid=${apiKey}&units=metric`
+        `${API_BASE_URL}/forecast?lat=${geoData.lat}&lon=${geoData.lon}&appid=${apiKey}&units=metric`
       );
       
       if (!response.ok) {
-        if (response.status === 404) {
-          throw new Error(`Location "${location}" not found. Please check the spelling and try again.`);
-        }
         if (response.status === 401) {
           throw new Error('Invalid API key. Please check your WEATHER_SERVICE_API_KEY environment variable.');
         }
@@ -160,8 +208,8 @@ export const getWeatherForecast = tool({
       }));
       
       return {
-        location: data.city.name,
-        country: data.city.country,
+        location: geoData.name,
+        country: geoData.country,
         forecast,
       };
     } catch (error) {

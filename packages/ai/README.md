@@ -14,7 +14,12 @@ bun install
 Basic arithmetic operations (add, subtract, multiply, divide, power).
 
 ### Weather Tools
-Get current weather and forecast information for any location worldwide.
+Get current weather and forecast information for any location worldwide using OpenWeatherMap API.
+
+**How it works:**
+1. First, the location name is geocoded to get precise latitude/longitude coordinates
+2. Then, weather data is fetched using these coordinates for maximum accuracy
+3. Results are formatted and returned with comprehensive weather information
 
 #### getCurrentWeather
 Get current weather conditions for a specific location.
@@ -40,6 +45,12 @@ Get weather forecast for a specific location.
 - 5-day forecast with 3-hour intervals
 - Temperature, weather conditions, precipitation
 - Humidity, wind speed, cloudiness for each time period
+
+**Location Resolution:**
+The tools support various location formats:
+- City name: "London", "Tokyo", "Sydney"
+- City with country: "London, GB", "New York, US", "Paris, FR"
+- City with state: "Austin, TX, US", "Toronto, ON, CA"
 
 ## Configuration
 
