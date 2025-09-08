@@ -30,36 +30,36 @@ transition: fade-out
 
 # ✨ Application Features
 
-<div class="grid grid-cols-2 gap-6 mt-8">
+<div class="grid grid-cols-2 gap-4 mt-6">
 
 <div class="feature-card">
   <h3>🔐 User Authentication</h3>
-  <p>Social login (Google) and email/password authentication with Better-Auth</p>
+  <p>Social login (Google) and email/password with Better-Auth</p>
 </div>
 
 <div class="feature-card">
   <h3>💬 Channel Management</h3>
-  <p>Create, join, and manage chat channels with role-based permissions</p>
+  <p>Create, join, and manage channels with role-based permissions</p>
 </div>
 
 <div class="feature-card">
   <h3>📱 Real-time Messaging</h3>
-  <p>Send and receive messages in real-time across channels with streaming</p>
+  <p>Send and receive messages in real-time with streaming</p>
 </div>
 
 <div class="feature-card">
   <h3>🤖 AI Integration</h3>
-  <p>Smart AI assistant with tool calling capabilities and multiple model support</p>
+  <p>Smart AI assistant with tool calling capabilities</p>
 </div>
 
 </div>
 
 <style>
 .feature-card {
-  @apply bg-gray-50 dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700;
+  @apply bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700;
 }
 .feature-card h3 {
-  @apply text-lg font-semibold mb-2;
+  @apply text-base font-semibold mb-2;
 }
 .feature-card p {
   @apply text-sm text-gray-600 dark:text-gray-400;
@@ -78,22 +78,24 @@ hono-orpc/
 │   ├── api/          # Hono backend server
 │   └── web/          # React frontend application
 ├── packages/
-│   ├── db/           # Drizzle ORM schema and utilities
-│   └── ai/           # AI tools and model integrations
+│   ├── db/           # Drizzle ORM schema
+│   └── ai/           # AI tools and integrations
 └── playgrounds/
-    └── ai/           # AI experimentation playground
+    └── ai/           # AI experimentation
 ```
 
 </div>
 
-## Why Monorepo?
+---
 
-<div class="mt-6">
-  <ul class="space-y-2">
-    <li>✅ <strong>Shared Type Safety:</strong> Types flow seamlessly between frontend and backend</li>
-    <li>✅ <strong>Code Reusability:</strong> Shared utilities, schemas, and contracts</li>
-    <li>✅ <strong>Unified Tooling:</strong> Single linting, formatting, and build configuration</li>
-    <li>✅ <strong>Developer Experience:</strong> Hot reload and type checking across the entire stack</li>
+# 🏗️ Why Monorepo?
+
+<div class="mt-4">
+  <ul class="space-y-3 text-lg">
+    <li>✅ <strong>Shared Type Safety</strong><br><span class="text-gray-600 dark:text-gray-400 text-base">Types flow seamlessly between frontend and backend</span></li>
+    <li>✅ <strong>Code Reusability</strong><br><span class="text-gray-600 dark:text-gray-400 text-base">Shared utilities, schemas, and contracts</span></li>
+    <li>✅ <strong>Unified Tooling</strong><br><span class="text-gray-600 dark:text-gray-400 text-base">Single linting, formatting, and build configuration</span></li>
+    <li>✅ <strong>Developer Experience</strong><br><span class="text-gray-600 dark:text-gray-400 text-base">Hot reload and type checking across the entire stack</span></li>
   </ul>
 </div>
 
@@ -103,7 +105,7 @@ hono-orpc/
 
 Ultra-fast web framework with end-to-end type safety
 
-```typescript {all|1-5|7-16|18-20|all}
+```typescript {all|1-5|7-12|all}
 // Contract Definition
 const channelContract = oc
   .route({ tags: ["chat", "channel"] })
@@ -120,14 +122,28 @@ const createChannel = channelContract
     members: z.array(z.string()).min(1),
   }))
   .output(channelSchema);
+```
 
+---
+
+# ⚡ oRPC Handler Implementation
+
+```typescript {all|1-3|5-9|all}
 // Handler Implementation
 const createChannel = chatRouter.createChannel
   .use(authMiddleware)
+  
   .handler(async ({ context, input, errors }) => {
-    // Implementation logic...
+    const [ch] = await db.insert(channel)
+      .values({ ...input, ownerId: context.user.id })
+      .returning();
+    return ch;
   });
 ```
+
+<div class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+  <strong>Key Benefits:</strong> End-to-end type safety, auto-generated OpenAPI docs, runtime validation
+</div>
 
 ---
 
@@ -135,7 +151,7 @@ const createChannel = chatRouter.createChannel
 
 Type-safe streaming with oRPC's built-in Server-Sent Events
 
-```typescript {all|1-8|10-18|all}
+```typescript {all|1-7|9-15|all}
 // Stream Contract Definition
 const streamChannelMessages = messageContract
   .route({
@@ -150,14 +166,10 @@ const streamChannelMessages = messageContract
   for await (const payload of publisher.subscribe(input.uuid, {
     signal, // Abort signal for cleanup
   })) {
-    yield payload; // Stream each message as it arrives
+    yield payload; // Stream each message
   }
 });
 ```
-
-<div class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-  <strong>Key Benefits:</strong> End-to-end type safety, auto-generated OpenAPI docs, runtime validation, real-time streaming
-</div>
 
 ---
 
@@ -175,7 +187,6 @@ export const auth = betterAuth({
   },
   socialProviders: {
     google: {
-      prompt: "select_account",
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     },
@@ -183,12 +194,16 @@ export const auth = betterAuth({
 });
 ```
 
+---
+
+# 🔐 Better-Auth Benefits
+
 <div class="mt-6">
-  <ul class="space-y-1 text-sm">
-    <li>✅ Multiple auth methods: Email/password, OAuth, magic links</li>
-    <li>✅ Framework agnostic with security-first approach</li>
-    <li>✅ CSRF protection, secure sessions, and rate limiting</li>
-    <li>✅ TypeScript native with excellent developer experience</li>
+  <ul class="space-y-3 text-lg">
+    <li>✅ <strong>Multiple Auth Methods</strong><br><span class="text-gray-600 dark:text-gray-400 text-base">Email/password, OAuth, magic links</span></li>
+    <li>✅ <strong>Framework Agnostic</strong><br><span class="text-gray-600 dark:text-gray-400 text-base">Security-first approach with CSRF protection</span></li>
+    <li>✅ <strong>Session Management</strong><br><span class="text-gray-600 dark:text-gray-400 text-base">Secure sessions and rate limiting</span></li>
+    <li>✅ <strong>TypeScript Native</strong><br><span class="text-gray-600 dark:text-gray-400 text-base">Excellent developer experience</span></li>
   </ul>
 </div>
 
@@ -196,9 +211,9 @@ export const auth = betterAuth({
 
 # 🗄️ Database with Drizzle ORM
 
-Best TypeScript experience for database operations with SQL-like API
+Best TypeScript experience for database operations
 
-```typescript {all|1-13|15-16|all}
+```typescript {all|1-7|9-13|all}
 export const channel = pgTable("channel", {
   uuid: uuid().notNull().primaryKey().defaultRandom(),
   name: text().notNull(),
@@ -213,13 +228,30 @@ export const channel = pgTable("channel", {
     .notNull()
     .defaultNow(),
 });
+```
 
-// Auto-generate Zod schemas
+---
+
+# 🗄️ Drizzle Schema Generation
+
+```typescript
+// Auto-generate Zod schemas from tables
 export const channelSchema = createSelectSchema(channel);
+export type Channel = z.infer<typeof channelSchema>;
+
+export const messageSchema = createSelectSchema(message);
+export type Message = z.infer<typeof messageSchema>;
+
+export const userSchema = createSelectSchema(user).pick({
+  email: true,
+  name: true,
+  image: true,
+  id: true,
+});
 ```
 
 <div class="mt-4 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg text-sm">
-  <strong>Why Drizzle?</strong> Performance first, SQL-like API, full TypeScript inference, auto-generated schemas, built-in migration system
+  <strong>Why Drizzle?</strong> Performance first, SQL-like API, full TypeScript inference, auto-generated schemas
 </div>
 
 ---
@@ -228,8 +260,8 @@ export const channelSchema = createSelectSchema(channel);
 
 Cutting-edge React patterns and tools for 2024
 
-<div class="flex justify-center mt-8">
-  <div class="grid grid-cols-3 gap-4">
+<div class="flex justify-center mt-6">
+  <div class="grid grid-cols-3 gap-3">
     <div class="tech-badge react">React 19</div>
     <div class="tech-badge router">TanStack Router</div>
     <div class="tech-badge query">TanStack Query</div>
@@ -239,17 +271,9 @@ Cutting-edge React patterns and tools for 2024
   </div>
 </div>
 
-<div class="mt-8 space-y-2 text-sm">
-  <p>🚀 <strong>React 19:</strong> Latest concurrent features and improved Suspense</p>
-  <p>🛣️ <strong>TanStack Router:</strong> File-based, type-safe routing with nested layouts</p>
-  <p>🔄 <strong>TanStack Query:</strong> Powerful data fetching and state synchronization</p>
-  <p>🎨 <strong>Tailwind CSS 4:</strong> Utility-first styling with CSS variables</p>
-  <p>🧩 <strong>Shadcn/ui:</strong> High-quality, accessible component library</p>
-</div>
-
 <style>
 .tech-badge {
-  @apply px-4 py-2 rounded-full text-white font-medium text-center;
+  @apply px-3 py-2 rounded-full text-white font-medium text-center text-sm;
 }
 .tech-badge.react { @apply bg-blue-500; }
 .tech-badge.router { @apply bg-purple-500; }
@@ -261,11 +285,23 @@ Cutting-edge React patterns and tools for 2024
 
 ---
 
-# 🛣️ Type-Safe File-Based Routing
+# 🎨 React Stack Benefits
 
-TanStack Router with full TypeScript integration and route guards
+<div class="mt-4 space-y-3 text-lg">
+  <p>🚀 <strong>React 19:</strong> Latest concurrent features and improved Suspense</p>
+  <p>🛣️ <strong>TanStack Router:</strong> File-based, type-safe routing with nested layouts</p>
+  <p>🔄 <strong>TanStack Query:</strong> Powerful data fetching and state synchronization</p>
+  <p>🎨 <strong>Tailwind CSS 4:</strong> Utility-first styling with CSS variables</p>
+  <p>🧩 <strong>Shadcn/ui:</strong> High-quality, accessible component library</p>
+</div>
 
-```typescript {all|1-8|10-22|all}
+---
+
+# 🛣️ Type-Safe Routing: Route Guards
+
+TanStack Router with full TypeScript integration
+
+```typescript {all|1-8|all}
 // Route guards with authentication
 export const Route = createFileRoute("/_protected")({
   beforeLoad: ({ context: { auth } }) => {
@@ -275,7 +311,13 @@ export const Route = createFileRoute("/_protected")({
   },
   component: Outlet,
 });
+```
 
+---
+
+# 🛣️ Type-Safe Routing: Data Loading
+
+```typescript {all|1-12|all}
 // Route loaders with prefetching
 export const Route = createFileRoute("/_protected/chat/$uuid/")({
   loader: async ({ context: { queryClient }, params }) => {
@@ -293,11 +335,11 @@ export const Route = createFileRoute("/_protected/chat/$uuid/")({
 
 ---
 
-# 🔄 TanStack Query + oRPC Integration
+# 🔄 TanStack Query + oRPC
 
 Automatic query options generation with type safety
 
-```typescript {all|1-6|8-16|all}
+```typescript {all|1-6|8-14|all}
 // Auto-generated query options from oRPC contracts
 const link = new OpenAPILink(contract, {
   url: `${window.location.origin}/api/rpc`,
@@ -316,21 +358,30 @@ const [{ data: channel }, { data: messages }] = useSuspenseQueries({
 });
 ```
 
-<div class="mt-4 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg text-sm">
-  <strong>Benefits:</strong> Route-based code splitting, intelligent query caching, optimistic updates, real-time streaming queries
+---
+
+# 🔄 Query Integration Benefits
+
+<div class="mt-6 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+  <ul class="space-y-2 text-sm">
+    <li><strong>Route-based code splitting</strong> - Automatic lazy loading</li>
+    <li><strong>Intelligent query caching</strong> - Background refetching</li>
+    <li><strong>Optimistic updates</strong> - Instant UI feedback</li>
+    <li><strong>Real-time streaming queries</strong> - Live data updates</li>
+  </ul>
 </div>
 
 ---
 
-# 🤖 AI Integration with Vercel AI SDK
+# 🤖 AI Integration Overview
 
 Modern AI application framework with multi-model support
 
-<div class="grid grid-cols-2 gap-6 mt-8">
+<div class="grid grid-cols-2 gap-4 mt-6">
 
 <div class="feature-card">
   <h3>🔗 Provider Agnostic</h3>
-  <p>Support for OpenAI, Anthropic, Google, OpenRouter, and 50+ providers</p>
+  <p>OpenAI, Anthropic, Google, OpenRouter, and 50+ providers</p>
 </div>
 
 <div class="feature-card">
@@ -345,7 +396,7 @@ Modern AI application framework with multi-model support
 
 <div class="feature-card">
   <h3>🔒 Type Safety</h3>
-  <p>Full TypeScript integration with Zod schema validation</p>
+  <p>Full TypeScript integration with Zod validation</p>
 </div>
 
 </div>
@@ -368,7 +419,7 @@ Modern AI application framework with multi-model support
 
 Type-safe function calling with automatic schema generation
 
-```typescript {all|1-6|7-20|all}
+```typescript {all|1-5|6-12|13-19|all}
 export const getCurrentWeather = tool({
   description: "Get current weather information for a city.",
   inputSchema: z.object({
@@ -380,7 +431,7 @@ export const getCurrentWeather = tool({
       `${API_URL}/weather?lat=${geo.lat}&lon=${geo.lon}`
     );
     const data = await response.json();
-
+    
     return {
       location: geo.name,
       temperature: Math.round(data.main.temp),
@@ -394,38 +445,38 @@ export const getCurrentWeather = tool({
 
 ---
 
-# 🚀 What We've Achieved
+# 🚀 Key Achievements
 
-<div class="grid grid-cols-2 gap-6 mt-8">
+<div class="grid grid-cols-2 gap-4 mt-6">
 
 <div class="achievement-card">
   <h3>🔒 End-to-End Type Safety</h3>
-  <p>Zero type gaps from database schema to UI components with compile-time error detection</p>
+  <p>Zero type gaps from database to UI with compile-time error detection</p>
 </div>
 
 <div class="achievement-card">
-  <h3>⚡ Developer Experience Excellence</h3>
-  <p>Sub-second hot reload, intelligent IntelliSense, and comprehensive debugging tools</p>
+  <h3>⚡ Developer Experience</h3>
+  <p>Sub-second hot reload and intelligent IntelliSense</p>
 </div>
 
 <div class="achievement-card">
-  <h3>🏗️ Modern Architecture Patterns</h3>
-  <p>File-based routing, real-time streaming, and AI-first development capabilities</p>
+  <h3>🏗️ Modern Architecture</h3>
+  <p>File-based routing, real-time streaming, AI-first development</p>
 </div>
 
 <div class="achievement-card">
-  <h3>🌐 Production Readiness</h3>
-  <p>Robust auth systems, scalable monorepo architecture, and optimized performance</p>
+  <h3>🌐 Production Ready</h3>
+  <p>Robust auth, scalable monorepo, optimized performance</p>
 </div>
 
 </div>
 
 <style>
 .achievement-card {
-  @apply bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-6 rounded-lg border border-blue-200 dark:border-blue-700;
+  @apply bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700;
 }
 .achievement-card h3 {
-  @apply text-lg font-semibold mb-3 text-blue-900 dark:text-blue-100;
+  @apply text-base font-semibold mb-2 text-blue-900 dark:text-blue-100;
 }
 .achievement-card p {
   @apply text-sm text-blue-700 dark:text-blue-300;
@@ -434,39 +485,49 @@ export const getCurrentWeather = tool({
 
 ---
 
-# 🌟 The TypeScript Ecosystem Advantage
+# 🌟 The Multiplicative Effect
 
-These technologies create a **multiplicative effect** where each tool enhances the others
+These technologies create synergy where each tool enhances the others
 
-<div class="mt-8 space-y-4">
+<div class="mt-6 space-y-3">
   <div class="connection-item">
-    <strong>oRPC</strong> contracts become <strong>TanStack Query</strong> hooks automatically
+    <strong>oRPC</strong> contracts → <strong>TanStack Query</strong> hooks automatically
   </div>
   
   <div class="connection-item">
-    <strong>Drizzle</strong> schemas generate <strong>Zod</strong> validators seamlessly
+    <strong>Drizzle</strong> schemas → <strong>Zod</strong> validators seamlessly
   </div>
   
   <div class="connection-item">
-    <strong>Vercel AI SDK</strong> tools integrate with type-safe <strong>API endpoints</strong>
+    <strong>Vercel AI SDK</strong> → type-safe <strong>API endpoints</strong>
   </div>
   
   <div class="connection-item">
-    <strong>TanStack Router</strong> provides <strong>compile-time route validation</strong>
+    <strong>TanStack Router</strong> → <strong>compile-time route validation</strong>
   </div>
-</div>
-
-<div class="mt-8 p-6 bg-gradient-to-r from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 rounded-lg text-center">
-  <p class="italic text-gray-700 dark:text-gray-300">
-    This isn't just about individual library quality—it's about how they work together to create something <strong>greater than the sum of their parts</strong>.
-  </p>
 </div>
 
 <style>
 .connection-item {
-  @apply p-4 bg-white dark:bg-gray-800 rounded-lg border-l-4 border-blue-500 shadow-sm;
+  @apply p-3 bg-white dark:bg-gray-800 rounded-lg border-l-4 border-blue-500 shadow-sm text-sm;
 }
 </style>
+
+---
+
+# 🌟 Greater Than the Sum
+
+<div class="mt-8 p-6 bg-gradient-to-r from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 rounded-lg text-center">
+  <p class="text-lg italic text-gray-700 dark:text-gray-300">
+    This isn't just about individual library quality—it's about how they work together to create something <strong>greater than the sum of their parts</strong>.
+  </p>
+</div>
+
+<div class="mt-6 text-center">
+  <p class="text-base text-gray-600 dark:text-gray-400">
+    The TypeScript ecosystem advantage in action
+  </p>
+</div>
 
 ---
 layout: center
@@ -477,7 +538,7 @@ class: text-center
 
 Questions & Discussion
 
-<div class="flex justify-center mt-8 space-x-4">
+<div class="flex justify-center mt-8 space-x-3">
   <div class="tech-badge modern">Modern TypeScript</div>
   <div class="tech-badge fullstack">Full-Stack</div>
   <div class="tech-badge ai">AI-Powered</div>
@@ -486,7 +547,7 @@ Questions & Discussion
 
 <style>
 .tech-badge {
-  @apply px-6 py-3 rounded-full text-white font-medium;
+  @apply px-4 py-2 rounded-full text-white font-medium text-sm;
 }
 .tech-badge.modern { @apply bg-blue-600; }
 .tech-badge.fullstack { @apply bg-purple-600; }
