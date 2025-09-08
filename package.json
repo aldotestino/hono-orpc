@@ -1,33 +1,18 @@
 {
-  "name": "hono-orpc",
-  "module": "index.ts",
+  "name": "typescript-fullstack-presentation",
+  "version": "1.0.0",
+  "description": "Modern TypeScript Full-Stack Chat Application Presentation",
   "type": "module",
-  "private": true,
   "scripts": {
-    "lint": "ultracite check",
-    "format": "ultracite fix",
-    "api": "bun --cwd apps/api dev",
-    "web": "bun --cwd apps/web dev",
-    "cli": "bun --cwd apps/cli start",
-    "build": "bun run --cwd apps/web build",
-    "start": "bun run --cwd apps/api start",
-    "db:generate": "bun run --cwd packages/db db:generate",
-    "db:migrate": "bun run --cwd packages/db db:migrate",
-    "db:push": "bun run --cwd packages/db db:push",
-    "db:studio": "bun run --cwd packages/db db:studio",
-    "db:visualizer": "bun run --cwd packages/db db:visualizer"
+    "dev": "slidev",
+    "build": "slidev build",
+    "export": "slidev export"
   },
-  "workspaces": [
-    "apps/*",
-    "packages/*",
-    "playgrounds/*"
-  ],
+  "dependencies": {
+    "@slidev/cli": "^0.48.8",
+    "@slidev/theme-geist": "^0.3.0"
+  },
   "devDependencies": {
-    "@biomejs/biome": "2.2.3",
-    "@types/bun": "latest",
-    "ultracite": "5.3.4"
-  },
-  "peerDependencies": {
-    "typescript": "^5.9.2"
+    "playwright-chromium": "^1.40.0"
   }
 }
