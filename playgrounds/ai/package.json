@@ -12,7 +12,8 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@hono-orpc/ai": "workspace:*",
     "@hono-orpc/db": "workspace:*",
-    "@hono-orpc/ai": "workspace:*"
+    "ai": "^5.0.47"
   }
 }

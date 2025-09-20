@@ -1,8 +1,25 @@
 import { generateResponse } from "@hono-orpc/ai";
 import db from "@hono-orpc/db";
-import type { ChannelSettings } from "@hono-orpc/db/schema";
+import type { ChannelSettings, Message, User } from "@hono-orpc/db/schema";
 import { message } from "@hono-orpc/db/tables";
+import type { ModelMessage } from "ai";
 import { desc, eq } from "drizzle-orm";
+
+const toModelMessage = (
+  msg: Message & { sender: User | null }
+): ModelMessage => {
+  if (msg.sender && msg.senderId !== "ai") {
+    return {
+      role: "user",
+      content: `${msg.sender.name}\n\n${msg.content.replace("@ai", "")}`,
+    };
+  }
+
+  return {
+    role: "assistant",
+    content: msg.content,
+  };
+};
 
 export const generateAIResponse = async (
   channelUuid: string,
@@ -25,8 +42,10 @@ export const generateAIResponse = async (
       `[generateAIResponse] Generating AI response with: ${JSON.stringify(channelAISettings)}`
     );
 
+    const modelMessages = invertedMessages.map(toModelMessage);
+
     const response = await generateResponse({
-      messages: invertedMessages,
+      messages: modelMessages,
       model: channelAISettings.model,
     });
 

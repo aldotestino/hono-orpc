@@ -1,3 +1,4 @@
+import { availableModelsInfo } from "@hono-orpc/ai/types";
 import {
   type ChannelSettings as ChSettings,
   channelSettingsSchema,
@@ -7,6 +8,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader, Save, Trash2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import ConfirmAction from "@/components/confirm-action";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -101,18 +103,16 @@ const ChannelSettingsForm = ({
                         <SelectValue placeholder="Select a model" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="openrouter/sonoma-dusk-alpha">
-                          Sonoma Dusk Alpha
-                        </SelectItem>
-                        <SelectItem value="openrouter/sonoma-sky-alpha">
-                          Sonoma Sky Alpha
-                        </SelectItem>
-                        <SelectItem value="openai/gpt-oss-20b:free">
-                          OpenAI GPT-OSS 20B
-                        </SelectItem>
-                        <SelectItem value="openai/gpt-oss-120b:free">
-                          OpenAI GPT-OSS 120B
-                        </SelectItem>
+                        {Object.entries(availableModelsInfo).map(
+                          ([model, info]) => (
+                            <SelectItem key={model} value={model}>
+                              {info.name}
+                              {info.tools && (
+                                <Badge variant="outline">Tools</Badge>
+                              )}
+                            </SelectItem>
+                          )
+                        )}
                       </SelectContent>
                     </Select>
                   </FormControl>

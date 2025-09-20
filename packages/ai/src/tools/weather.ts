@@ -6,28 +6,34 @@ const API_BASE_URL = "https://api.openweathermap.org/data/2.5";
 const GEO_API_URL = "http://api.openweathermap.org/geo/1.0";
 const API_KEY = process.env.OPENWEATHERMAP_API_KEY;
 
-const geocodeLocation = async (location: string) => {
-  const response = await fetch(
-    `${GEO_API_URL}/direct?q=${encodeURIComponent(location)}&limit=1&appid=${API_KEY}`
-  );
-  const data = await response.json();
-  return data[0];
-};
-
-export const getCurrentWeather = tool({
-  description: "Get current weather information for a city.",
+export const getGeocodeLocation = tool({
+  description: "Get geocode location for a city.",
   inputSchema: z.object({
     location: z.string().describe('City name (e.g., "London", "New York, US")'),
   }),
   execute: async ({ location }) => {
-    const geo = await geocodeLocation(location);
     const response = await fetch(
-      `${API_BASE_URL}/weather?lat=${geo.lat}&lon=${geo.lon}&appid=${API_KEY}&units=metric`
+      `${GEO_API_URL}/direct?q=${encodeURIComponent(location)}&limit=1&appid=${API_KEY}`
+    );
+    const data = await response.json();
+
+    return data[0];
+  },
+});
+
+export const getCurrentWeather = tool({
+  description: "Get current weather information for a city.",
+  inputSchema: z.object({
+    lat: z.number(),
+    lon: z.number(),
+  }),
+  execute: async ({ lat, lon }) => {
+    const response = await fetch(
+      `${API_BASE_URL}/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`
     );
     const data = await response.json();
 
     return {
-      location: geo.name,
       temperature: Math.round(data.main.temp),
       description: data.weather[0].description,
       humidity: data.main.humidity,
@@ -39,17 +45,17 @@ export const getCurrentWeather = tool({
 export const getWeatherForecast = tool({
   description: "Get weather forecast for a city.",
   inputSchema: z.object({
-    location: z.string().describe('City name (e.g., "London", "New York, US")'),
+    lat: z.number(),
+    lon: z.number(),
     days: z
       .number()
       .optional()
       .default(3)
       .describe("Number of forecast days (1-5, default: 3)"),
   }),
-  execute: async ({ location, days = 3 }) => {
-    const geo = await geocodeLocation(location);
+  execute: async ({ lat, lon, days = 3 }) => {
     const response = await fetch(
-      `${API_BASE_URL}/forecast?lat=${geo.lat}&lon=${geo.lon}&appid=${API_KEY}&units=metric`
+      `${API_BASE_URL}/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`
     );
     const data = await response.json();
 
@@ -71,7 +77,6 @@ export const getWeatherForecast = tool({
       });
 
     return {
-      location: geo.name,
       forecast,
     };
   },
